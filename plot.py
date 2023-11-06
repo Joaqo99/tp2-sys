@@ -245,7 +245,8 @@ def plot_leqs(*signals, x=[], title=False, figsize=False, show=True, rotate=Fals
         else:
             plt.bar(x, signal["leq"], alpha=0.7)
 
-        plt.xlabel("Frecuencias centrales [Hz]")
+        if info_type=="Frequency":
+            plt.xlabel("Frecuencias centrales [Hz]")
         if rotate:
             plt.xticks(rotation=45)
         plt.ylabel("Nivel de energía equivalente [dB]")
