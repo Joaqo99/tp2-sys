@@ -21,9 +21,6 @@ def create_third_octave_filter(f0, fs):
     pol_coef = [b, a]
     return pol_coef
 
-def octave_3dB_filter():
-    pass
-
 def filter_audio(pol_coef, audio):
     """
     Generates a filter for a sinesweep response
@@ -62,7 +59,4 @@ def sinesweep_filter(f01, f02, fs):
 
 octave_rel = 2
 ref_freq = 1000
-
-#----------------------------------- 
-# Pruebas
 

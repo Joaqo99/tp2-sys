@@ -2,23 +2,19 @@ from matplotlib import pyplot as plt
 from scipy import signal
 import numpy as np
 
-def plot_signal(*vectors, xticks=None, yticks=None, title=None, file_name=False, grid=False, log=False, figsize=False, x_type="Sample", dB=False, show=True):
+def plot_signal(*vectors, xticks=None, yticks=None, title=None, file_name=False, grid=False, log=False, figsize=False, dB=False, show=True):
     """
     Plots a signal.
     Input:
         - n: array type object. Sample/time vector.
         - signal: array type object. Signal vector.    
         - xticks: Optional. 
-            - If signal is Sample type, array type object. 
-            - If signal is Time type, int type object. 
         - yticks: array type object. Optional
         - title: string type object. Optional
         - file_name: string type object. Optional. If true, saves the figure in graficos folder.
         - grid: boolean type object. Optional.
         - log: boolean type object. Optional.
         - figsize: tuple of ints type object. Optional.
-        - x_type: string type object. Optional. If the x values are time or samples. "Sample" by default. 
-            - Allowed values: Sample, Time.
         - dB: Bool type object. Optional, false by default. If true, the amplitude is in dB scale.
     Output:
         - Signal plot
@@ -27,29 +23,14 @@ def plot_signal(*vectors, xticks=None, yticks=None, title=None, file_name=False,
     if figsize:
         plt.figure(figsize=figsize) 
 
-    #Plot type and xticks depending on signal type
-    if x_type == "Sample":
-        for vector in vectors:
-            n, signal = vector
-            plt.stem(n, signal)
-            plt.xlabel("Sample")
-            if type(xticks) == np.ndarray:
-                plt.xticks(xticks)
-            elif xticks != None:
-                raise Exception("If signal is Sample type, xticks value must be a numpy array")
-        
-    elif x_type == "Time":
-        for vector in vectors:
-            n, signal = vector
-            plt.plot(n, signal)
-            plt.xlabel("Time [s]")
-            if type(xticks) == int:
-                plt.xticks(np.arange(0, xticks, 1))
-            elif type(xticks) != None:
-                raise Exception("If signal is Time type, xtick value must be an int")
-        
-    else:
-        raise Exception("No valid type")
+    for vector in vectors:
+        n, signal = vector
+        plt.plot(n, signal)
+        plt.xlabel("Time [s]")
+        if type(xticks) == int:
+            plt.xticks(np.arange(0, xticks, 1))
+        elif type(xticks) != None:
+            raise Exception("xtick value must be an int")
     
     if dB:
         plt.ylabel("Amplitude [dB]")
@@ -57,14 +38,15 @@ def plot_signal(*vectors, xticks=None, yticks=None, title=None, file_name=False,
         plt.ylabel("Amplitude")
 
     if type(yticks) == np.ndarray:
+        plt.ylim(np.min(yticks), np.max(yticks))
         plt.yticks(yticks)
     plt.grid(grid)
 
     if log:
         plt.yscale("log")
         plt.ylabel("Amplitude (logarithmic)")
-        if dB:
-            plt.ylabel("Amplitude (logarithmic) [dB]")
+    if dB:
+        plt.ylabel("Amplitude [dB]")
 
     if title:
         plt.title(title)
