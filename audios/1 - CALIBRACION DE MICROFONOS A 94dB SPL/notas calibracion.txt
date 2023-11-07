@@ -1,0 +1,9 @@
+-cada audio es el registro de cada microfono con un calibrador seteado a 94dB SPL(1Pa)
+-se seteo la ganancia de la placa en aproximadamente -24db FullScale(FS)
+para tener un headroom suficiente para alcanzar un max de 0dB FS = 118dB SPL.
+
+nota: 
+*La duracion de los audios no es la misma.  
+Cada audio es de 7 segundos o mas para satisfacer la consigna de registro de 5seg. 
+
+*IMPORTANTE: en los audios se escucha bastantante por debajo el sonido de las conversaciones mientras se realizaron las mediciones. Va a ser necesario incorporar la consideracion en los tp del estilo: "el sonido de conversaciones no afecta la calibracion por estar  al menos 10dB por debajo de la señal de interes"(quizas analizando el espectrograma y fundamentando )

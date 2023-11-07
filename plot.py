@@ -1,5 +1,6 @@
 from matplotlib import pyplot as plt
 from scipy import signal
+
 import numpy as np
 
 def plot_signal(*vectors, xticks=None, yticks=None, title=None, file_name=False, grid=False, log=False, figsize=False, dB=False, show=True):
@@ -56,77 +57,6 @@ def plot_signal(*vectors, xticks=None, yticks=None, title=None, file_name=False,
         plt.savefig(f"../graficos/{file_name}.png")
         #print(f"File saved in graficos/{file_name}.png")
     
-    if show: 
-        plt.show()
-    else:
-        plt.ioff()
-
-def plot_spectre(*audio_signals, fs, N = 1, f_lim = False, title = "Espectro en frecuencia", show=True, figsize=False):
-    """
-    Generates and displays a graph of the frequency spectrum of an audio signal.
-    
-    Parameters
-    ----------
-    - audio_signal : ndarray
-        Array containing the audio signal to be plot.
-    - sample_rate : int
-        Sampling rate.
-    - N : int,float
-        Parameter of the window size for moving average filter
-    - titulo: str
-        Optional title for the plot. Default value: "Espectro en frecuencia".
-        
-    Returns
-    -------
-    - None
-    
-    Raises
-    ------
-    ValueError
-        Checks if the N value is greater than cero.
-
-    """
-    #Verifico si la señal ingresada es estéreo o mono
-    for audio_signal in audio_signals:
-        if len(audio_signal.shape) > 1:
-            #La transformo en una señal mono
-            audio_signal = (audio_signal[:,0]/2)+(audio_signal[:,1]/2)
-
-        # Calcula el espectro de amplitud de la señal
-        spectrum = np.fft.fft(audio_signal)
-        fft = spectrum[:len(spectrum)//2]
-
-        # Encuentra el rango de frecuencias positivas
-        fft_mag = abs(fft) / len(fft)
-        freqs = np.linspace(0, fs/2, len(fft))
-
-        # Paso la magnitud a decibeles
-        fft_mag_norm = fft_mag / np.max(abs(fft_mag))
-        eps = np.finfo(float).eps
-        fft_mag_db = 20 * np.log10(fft_mag_norm + eps)
-
-        # Aplico el filtro media movil
-        ir = np.ones(N)*1/N # respuesta al impulso de MA
-        smoothed_signal = signal.fftconvolve(fft_mag_db, ir, mode='same')
-
-        # Escala logarítmica para el eje x
-        plt.semilogx(freqs, smoothed_signal, color='g')
-
-    if figsize:
-        plt.figure(figsize=figsize) 
-
-    if f_lim:
-        f_min, f_max = f_lim
-        plt.xlim(f_min, f_max)
-        xticks =list(filter(lambda f: f >= f_min and f <= f_max, oct_central_freqs))
-        plt.xticks(xticks, xticks)
-    
-    plt.ylim(-60, np.max(fft_mag_db) + 10)
-    plt.xlabel("Frecuencia [Hz]", fontsize=12)
-    plt.ylabel("Amplitud [dB]", fontsize=12)
-    plt.title(title, fontsize=16)
-    plt.grid(True)
-
     if show: 
         plt.show()
     else:
@@ -248,6 +178,8 @@ def plot_leqs(*signals, x=[], title=False, figsize=False, show=True, rotate=Fals
 def multiplot(*plots, figsize=(8, 5)):
     """
     Receive single plots as lambda functions and subplots them all.
+    Inputs:
+        plots: lambda function type object.
     """
     num_plots = len(plots)
     rows = (num_plots + 1)//2
@@ -258,8 +190,343 @@ def multiplot(*plots, figsize=(8, 5)):
 
     plt.show()
 
+def plot_fft(audio_signal, sample_rate=48000, N=10, title="Frequency Spectrum"):
+    """
+    Generates and displays a graph of the frequency spectrum of an audio signal.
 
+    Parameters:
+        - audio_signal: ndarray
+            Array containing the audio signal to be plotted.
+        - sample_rate: int
+            Sampling rate. Default value: 48000.
+        - N: int or float
+            Window size parameter for the moving average filter. Default value: 10.
+        - title: str
+            Optional title for the plot. Default value: "Frequency Spectrum".
 
+    Returns:
+        - None
+
+    Raises:
+        - ValueError
+            Checks if the 'N' value is greater than zero.
+
+    """
+    # Verify if the input signal is stereo or mono
+    if len(audio_signal.shape) > 1:
+        # Convert it to a mono signal
+        audio_signal = (audio_signal[:, 0] / 2) + (audio_signal[:, 1] / 2)
+
+    # Calculate the amplitude spectrum of the signal
+    spectrum = np.fft.fft(audio_signal)
+    fft = spectrum[:len(spectrum) // 2]
+
+    # Find the range of positive frequencies
+    fft_mag = abs(fft) / len(fft)
+    freqs = np.linspace(0, sample_rate / 2, len(fft))
+
+    # Convert magnitude to decibels
+    fft_mag_norm = fft_mag / np.max(abs(fft_mag))
+    eps = np.finfo(float).eps
+    fft_mag_db = 20 * np.log10(fft_mag_norm + eps)
+
+    # Apply the moving average filter
+    ir = np.ones(N) * 1 / N  # Moving average impulse response
+    smoothed_signal = signal.fftconvolve(fft_mag_db, ir, mode='same')
+
+    # Logarithmic scale for the x-axis
+    plt.figure(figsize=(12, 5))
+    plt.semilogx(freqs, smoothed_signal, color='g')
+    ticks = [31, 63, 125, 250, 500, 1000, 2000, 4000, 8000, 16000]
+    plt.xticks([t for t in ticks], [f'{t}' for t in ticks])
+    plt.xlim(20, 22000)
+    plt.ylim(-80, np.max(fft_mag_db) + 10)
+    plt.xlabel("Frequency [Hz]", fontsize=14)
+    plt.ylabel("Amplitude [dB]", fontsize=14)
+    if N != 1:
+        plt.title(f"{title} - Filter Window = {N}", fontsize=16)
+    else:
+        plt.title(title, fontsize=16)
+    plt.grid(True)
+
+    # Display the plot
+    plt.show()
+
+def plot_rir_casos(rir_casos, fs=48000):
+    """
+    Grafico respuesta en frecuencia superpuestas de los 2 casos del Aula
+
+    Parameters
+    ----------
+    rir_casos : TYPE
+        DESCRIPTION.
+
+    Returns
+    -------
+    None.
+
+    """
+    for i, func in enumerate(rir_casos):
+    
+        if i == 0:
+            plt.figure(figsize=(12, 5))
+        # Calcula el espectro de amplitud de la señal
+        spectrum = np.fft.fft(func)
+        fft = spectrum[:len(spectrum)//2]
+    
+        # Encuentra el rango de frecuencias positivas
+        fft_mag = abs(fft) / len(fft)
+        freqs = np.linspace(0, fs/2, len(fft))
+    
+        # Paso la magnitud a decibeles
+        fft_mag_norm = fft_mag / np.max(abs(fft_mag))
+        eps = np.finfo(float).eps
+        fft_mag_db = 10 * np.log10((fft_mag_norm + eps)**2)
+            
+        # Escala logarítmica para el eje x
+        plt.semilogx(freqs, fft_mag_db, "g")
+        
+        
+    ticks = [31, 63, 125, 250, 500, 1000, 2000, 4000, 8000, 16000]
+    plt.xticks([t for t in ticks], [f'{t}' for t in ticks])
+    plt.xlim(20, 22000)
+    plt.ylim(-80, np.max(fft_mag_db) + 10)
+    plt.xlabel("Frecuencia [Hz]", fontsize=14)
+    plt.ylabel("Amplitud [dB]", fontsize=14)
+    # if N != 1:
+    #     plt.title(f"{title} - Ventana del filtro = {N}", fontsize=16)
+    # else:
+    #     plt.title(title, fontsize=16)
+    plt.title(f"Respuesta en frecuencia superpuesta", fontsize=16)
+    plt.grid(True)
+    
+    
+    # Muestra el gráfico
+    plt.show()
+
+    return
+
+def rir_subplot(rir_list, t, plot_type="12-RIR", case = None):
+    """
+    
+    
+    Parameters
+    ----------
+    rir_list : TYPE
+        DESCRIPTION.
+    t : TYPE
+        DESCRIPTION.
+    plot_type : TYPE, optional
+    
+        Type: SG-CG for comparation between MIC 3 SG and CG or 
+        type 12-RIR for comparation between 12 RIRs. The default is "12-RIR". 
+
+    Returns
+    -------
+    None.
+
+    """
+    # Crear una figura y un arreglo de subplots
+    fig = plt.figure(figsize=(10, 14))
+    
+    # Iterar a través de las funciones y agregar cada una al subplot
+    for i, func in enumerate(rir_list):
+        # Crear un subplot en la posición (n_filas, n_columnas, índice)
+        plt.subplot(6, 2, i + 1)
+        plt.plot(t, func, "g")
+        if plot_type == "SG-CG":
+            if i==0:
+                plt.title(f"RIR - MIC 3 - SG")
+            else:
+                plt.title(f"RIR - MIC 3 - CG")
+        else:
+            plt.title(f"RIR posicion {i + 1}  {case}")
+        plt.xlabel("Tiempo [s]", fontsize=13)
+        plt.ylabel("Amplitud", fontsize=13)
+        plt.grid()
+    
+    plt.tight_layout()
+    plt.show()
+    return
+
+def plot_mult_fft(audio_signal1, audio_signal2, fs=48000, N=10, title="Espectro en frecuencia"):
+    """
+    Generates and displays a graph of the frequency spectrum of audio signals.
+    Parameters
+    ----------
+    - audio_signal1, audio_signal2 : ndarray
+        Arrays containing the audio signals to be plotted.
+    - fs : int
+        Sampling rate.
+    - N : int, float
+        Parameter of the window size for the moving average filter.
+    - title : str
+        Optional title for the plot. Default value: "Espectro en frecuencia".
+
+    Returns
+    -------
+    - None
+
+    Raises
+    ------
+    - ValueError
+        Checks if the N value is greater than zero.
+
+    """
+    # Verifico si las señales ingresadas son estéreo o mono
+    if len(audio_signal1.shape) > 1:
+        # Las transformo en señales mono
+        audio_signal1 = (audio_signal1[:, 0] / 2) + (audio_signal1[:, 1] / 2)
+    if len(audio_signal2.shape) > 1:
+        audio_signal2 = (audio_signal2[:, 0] / 2) + (audio_signal2[:, 1] / 2)
+
+    # Calcula el espectro de amplitud de las señales
+    spectrum1 = np.fft.fft(audio_signal1)
+    fft1 = spectrum1[:len(spectrum1) // 2]
+    spectrum2 = np.fft.fft(audio_signal2)
+    fft2 = spectrum2[:len(spectrum2) // 2]
+
+    # Encuentra el rango de frecuencias positivas
+    fft_mag1 = abs(fft1) / len(fft1)
+    freqs1 = np.linspace(0, fs / 2, len(fft1))
+    fft_mag2 = abs(fft2) / len(fft2)
+    freqs2 = np.linspace(0, fs / 2, len(fft2))
+
+    # Paso la magnitud a decibeles
+    fft_mag_norm1 = fft_mag1 / np.max(abs(fft_mag1))
+    eps = np.finfo(float).eps
+    fft_mag_db1 = 20 * np.log10(fft_mag_norm1 + eps)
+    fft_mag_norm2 = fft_mag2 / np.max(abs(fft_mag2))
+    fft_mag_db2 = 20 * np.log10(fft_mag_norm2 + eps)
+
+    # Aplico el filtro media movil
+    ir = np.ones(N) * 1 / N  # respuesta al impulso de MA
+    smoothed_signal1 = signal.fftconvolve(fft_mag_db1, ir, mode='same')
+    smoothed_signal2 = signal.fftconvolve(fft_mag_db2, ir, mode='same')
+
+    # Escala logarítmica para el eje x
+    plt.figure(figsize=(12, 5))
+    plt.semilogx(freqs1, smoothed_signal1, color='g', label='RIR SG')
+    plt.semilogx(freqs2, smoothed_signal2, color='orange', label='RIR CG')
+    ticks = [31, 63, 125, 250, 500, 1000, 2000, 4000, 8000, 16000]
+    plt.xticks([t for t in ticks], [f'{t}' for t in ticks])
+    plt.xlim(20, 22000)
+    plt.ylim(-80, max(np.max(fft_mag_db1), np.max(fft_mag_db2)) + 10)
+    plt.xlabel("Frecuencia [Hz]", fontsize=14)
+    plt.ylabel("Amplitud [dB]", fontsize=14)
+    if N != 1:
+        plt.title(f"{title} - Ventana del filtro = {N}", fontsize=16)
+    else:
+        plt.title(title, fontsize=16)
+    plt.grid(True)
+    plt.legend()
+
+    # Muestra el gráfico
+    plt.show()
+    return
+
+def cont_signal_ploter(t, signal, labels = ("Tiempo [s]","Amplitud"), xlimits = (None, None), ylimits = (None, None), xscale = "linear", yscale = "linear", x_mathtext = False, y_mathtext = False, x_ticks = (None), y_ticks = (None), title = "", col = "#1f77b4", grid = True, size = (8, 4), save = False, file_name = "mi_grafico", image_dpi = 200):
+    """
+    Plot a continuous signal.
+
+    Parameters:
+    -----------
+    t : numpy.ndarray
+        Array of time values
+    signal : numpy.ndarray
+        Array containing the signal values
+    labels : tuple, optional
+        Labels for the x and y axes (default is ("Tiempo [s]", "Amplitud"))
+    xlimits : tuple, optional
+        Tuple specifying the minimum and maximum values for the x-axis
+    ylimits : tuple, optional
+        Tuple specifying the minimum and maximum values for the y-axis
+    xscale : str, optional
+        Scaling type for the x-axis (default is "linear")
+    yscale : str, optional
+        Scaling type for the y-axis (default is "linear")
+    x_mathtext : bool, optional
+        Use MathText for the x-axis labels (default is False)
+    y_mathtext : bool, optional
+        Use MathText for the y-axis labels (default is False)
+    title : str, optional
+        Title of the plot (default is "")
+    col : str, optional
+        Color of the signal plot (default is "#1f77b4").
+    grid : bool, optional
+        Enable grid lines on the plot (default is True).
+    size : tuple, optional
+        Size of the plot figure in inches (default is (8, 4)).
+    save : bool, optional
+        Save the plot as an image file (default is False).
+    file_name : str, optional
+        Name of the saved image file (default is "my_plot").
+    image_dpi : int, optional
+        DPI (dots per inch) for the saved image file (default is 200).
+
+    Returns:
+    --------
+    None
+    """
+    x, y = labels
+    xlim_min, xlim_max = xlimits
+    ylim_min, ylim_max = ylimits
+    x_fig_size, y_fig_size = size
+    
+    fig, ax = plt.subplots()
+    
+    fig.set_size_inches(x_fig_size, y_fig_size)
+    
+    ax.plot(t, signal, color = col)
+        
+    if grid == True:
+        plt.grid(alpha = 0.7)
+    elif grid == False:
+        pass
+    if x_mathtext == True:
+        ax.ticklabel_format(axis = "x", scilimits = (0, 0), useLocale = True, useMathText = True)
+    else:
+        pass
+    if y_mathtext == True:
+        ax.ticklabel_format(axis = "y", scilimits = (0,0), useLocale = True, useMathText = True)
+    else:
+        pass
+    if xlim_min != None or xlim_max != None:
+        ax.set_xlim(xlim_min, xlim_max)
+    else:
+        ax.set_xlim(auto = True)
+    
+    if ylim_min != None or ylim_max != None:
+        ax.set_ylim(ylim_min, ylim_max)
+    else:
+        ax.set_ylim(auto = True)
+    
+    if y_ticks != None:
+        ax.set_yticks(y_ticks)
+    else:
+        pass
+    
+    if x_ticks != None:
+        ax.set_xticks(x_ticks)
+    else:
+        pass
+    
+    ax.xaxis.set_major_locator(MaxNLocator(nbins = "auto", integer=True, steps = [1, 2, 5, 10]))
+    
+    plt.xscale(xscale)
+    plt.yscale(yscale)
+
+    ax.set_title(title, fontsize=16)
+    
+    ax.set_xlabel(x, fontsize=12)
+    ax.set_ylabel(y, fontsize=12)
+    
+    if save == True:
+        plt.savefig(f'{file_name}.png', dpi = image_dpi)
+    
+    plt.show()
+    
+    return
 
 oct_central_freqs = [125.0, 250.0, 500.0, 1000.0, 2000.0, 4000.0]
 thirds_central_freqs = [78.745, 99.123, 125.0, 157.49, 198.43, 250.0, 314.98, 396.85, 500.0, 628.96, 793.7, 1000.0, 1259.9, 1587.4, 2000.0, 2519.8, 3174.8, 4000.0, 5039.7]

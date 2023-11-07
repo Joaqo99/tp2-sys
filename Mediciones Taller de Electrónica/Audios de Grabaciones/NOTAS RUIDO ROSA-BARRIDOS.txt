@@ -1,0 +1,3 @@
+*El ruido rosa, el barrido de 70-6KHz y de 30-8KHz se generaron con codigo Python.
+*el registro de los microfonos comenzó 2 segundos antes de las señales.
+* Por lo tanto: El audio "RUIDO ROSA.WAV" o "BARRIDO LOG...." contenido en cada carpeta es un bounce de la daw manteniendo las caracteristicas del proyecto(48KHz de Sample Rate y niveles unitarios)  con el fin de tener el audio que generó el registro de los mics para comparaciones.

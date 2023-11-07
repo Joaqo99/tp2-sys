@@ -2,6 +2,8 @@ import soundfile as sf
 from IPython.display import Audio
 import numpy as np
 import filters_bank as fb
+import pandas_read as pr
+from scipy import signal
 
 def load_audio(file_name):
     """
@@ -16,7 +18,7 @@ def load_audio(file_name):
     if type(file_name) != str:
         raise Exception("file_name must be a string")
 
-    audio, fs = sf.read(f"../audios/{file_name}")
+    audio, fs = sf.read(f"{file_name}")
 
 #    if audio.shape[1] != 1 and audio.shape[1] != 2:
 #        raise Exception("Not valid input")
@@ -31,10 +33,16 @@ def load_audio(file_name):
 
 def play_mono_audio(audio, fs):
     """
-    Plays a mono audio
-    Inputs:
-        - audio: array type object. Audio to play. Must be mono.
-        - fs: int type object. Sample rate
+    Play a mono audio.
+
+    Parameters:
+        - audio: array-like
+            Mono audio signal to play.
+        - fs: int
+            Sample rate.
+
+    Returns:
+        - Audio object: An object for playing audio.
     """
     #error handling
     if type(fs) != int:
@@ -174,3 +182,244 @@ def sum_bands(values):
 
     total_value = 10*np.log10(sum_pressure + eps)
     return total_value
+
+def inversesweep(sweep, f1, f2, sr):
+    """
+    Generate an inverse sweep signal from a given sweep signal.
+
+    Parameters:
+        - sweep: ndarray
+            The original sweep signal.
+        - f1: float
+            Start frequency of the sweep signal in Hz.
+        - f2: float
+            End frequency of the sweep signal in Hz.
+        - sr: int
+            Sampling rate.
+
+    Returns:
+        - inverse_sweep_normalized: ndarray
+            The generated and normalized inverse sweep signal.
+
+    """
+    T = int(len(sweep)/sr)
+    t = np.linspace(0, T, T*sr)
+    R = np.log(f2/f1)
+    envolvente = np.exp((t*R)/T)
+    inverse_sweep = sweep[::-1]/envolvente
+    inverse_sweep_normalized = inverse_sweep/np.max(np.abs(inverse_sweep))
+    
+    return inverse_sweep_normalized
+
+def get_rir(audio, sweep_ref, f1,f2, sr=48000):
+    """
+    Generate a room impulse response (RIR) from recorded audio using a sine sweep reference.
+    
+    Parameters:
+        - audio: ndarray
+            Recorded audio signal containing the sine sweep response.
+        - sweep_ref: ndarray
+            Sine sweep reference signal used for the measurement.
+        - f1: float
+            Start frequency of the sine sweep in Hz.
+        - f2: float
+            End frequency of the sine sweep in Hz.
+        - sr: int, optional
+            Sampling rate. Default is 48000.
+
+    Returns:
+        - rir_trim: ndarray
+            Trimmed and normalized room impulse response (RIR).
+
+    """
+    inv_sweep = inversesweep(sweep_ref, f1, f2, sr)
+
+    rir = signal.fftconvolve(audio, inv_sweep, mode='same')
+    
+    rir_norm = rir / np.max(np.abs(rir))
+
+    max_rir = np.argwhere(rir_norm == rir_norm.max())
+    max_rir = max_rir[0]
+    max_rir = max_rir[0]
+    
+    rir_trim = rir_norm[max_rir-20:max_rir+47980]
+    
+    return rir_trim
+
+def rir_filt(rir, f1=70, f2=6000, sr = 48000):
+    """
+    Filter a room impulse response (RIR) using a sine sweep filter.
+
+    Parameters:
+        - rir: ndarray
+            Room impulse response (RIR) to be filtered.
+        - f1: float, optional
+            Low-pass filter cutoff frequency in Hz. Default is 70 Hz.
+        - f2: float, optional
+            High-pass filter cutoff frequency in Hz. Default is 6000 Hz.
+        - sr: int, optional
+            Sampling rate. Default is 48000.
+
+    Returns:
+        - rir_filtered: ndarray
+            Filtered room impulse response (RIR).
+
+    """
+    coef_pol = fb.sinesweep_filter(f1, f2, sr)
+    rir_filtered = fb.filter_audio(coef_pol, rir)
+    
+    return rir_filtered
+
+def get_rirs(sinesweeps,  sinesweep_ref, f1, f2, fs):
+    """
+    Generate room impulse responses (RIRs) from audio recorded sine sweeps and save the arrays in Py format.
+
+    Parameters:
+        - sinesweeps: List of ndarrays
+            List of recorded audio signals containing sine sweep responses.
+        - sinesweep_ref: ndarray
+            Sine sweep reference signal used for the measurements.
+        - f1: float
+            Start frequency of the sine sweep in Hz.
+        - f2: float
+            End frequency of the sine sweep in Hz.
+        - fs: int
+            Sampling rate.
+
+    Returns:
+        None
+
+    """
+    rirs = []
+    for i in range(len(sinesweeps)):
+        #Obtengo el rir de esa posicion
+        riri = get_rir(sinesweeps[i], sinesweep_ref, f1, f2, fs)
+        #Filtro
+        riri = rir_filt(riri)
+        rirs.append(riri)
+    return rirs
+
+def prom_rirs(rirs):
+    """
+    Compute the normalized sum of room impulse responses (RIRs).
+
+    Parameters:
+        - rirs: list of numpy arrays
+            List of room impulse responses (RIRs) as 1D numpy arrays.
+
+    Returns:
+        - sum_rirs_normalized: numpy array
+            The normalized sum of RIRs.
+
+    """
+    sum_rirs = np.zeros(rirs[0].size)
+
+    for i in range(len(rirs)):
+        sum_rirs += rirs[i]
+    sum_rirs_normalized = sum_rirs / np.max(sum_rirs)
+    return sum_rirs_normalized
+
+def get_paths(filename, sheet_name):
+    """
+    Get file paths from an Excel file.
+
+    Parameters:
+        filename: string. The name of the Excel file.
+        sheet_name: string. The name of the Excel sheet containing paths.
+
+    Returns:
+        signals_paths: List of file paths.
+
+    """
+    signals_paths = pr.excel_sheets_data_to_DataFrame(filename, sheet_name)
+    signals_paths = signals_paths[0]["Path"]
+
+    return signals_paths
+
+def get_signals(signals_paths):
+    """
+    Load audio signals from file paths.
+
+    Parameters:
+        signals_paths (list): List of file paths to audio signals.
+
+    Returns:
+        signals_sr: List of loaded audio signals.
+        signals: List of corresponding sample rates.
+
+    """
+    signals = []
+    signals_sr = []
+
+    for i in range(len(signals_paths)):
+        signal_i, sr_i = load_audio(signals_paths[i])  # You'll need to define/load the 'load_audio' function.
+        signals.append(signal_i)
+        signals_sr.append(sr_i)
+
+    return signals_sr, signals
+
+def get_paths(filename, sheet_name):
+    """
+    Extract file paths from an Excel file.
+
+    Parameters:
+        - filename (str): The name of the Excel file.
+        - sheet_name (str): The name of the Excel sheet containing paths.
+
+    Returns:
+        - signals_paths (list of str): A list of file paths extracted from the specified Excel sheet.
+
+    Example:
+        file_paths = get_paths("data.xlsx", "Sheet1")
+    """
+    signals_paths = pr.excel_sheets_data_to_DataFrame(filename, sheet_name)
+    signals_paths = signals_paths[0]["Path"]
+    
+    return signals_paths
+
+def get_signals(signals_paths):
+    """
+    Load audio signals from file paths.
+
+    Parameters:
+        - signals_paths (list of str): List of file paths to audio signals.
+
+    Returns:
+        - signals_sr (list of int): List of sample rates for the loaded audio signals.
+        - signals (list of ndarray): List of loaded audio signals.
+
+    """
+    signals = []
+    signals_sr = []
+    
+    for i in range(len(signals_paths)):
+        signal_i, sr_i = load_audio(signals_paths[i])
+        signals.append(signal_i)
+        signals_sr.append(sr_i)
+    
+    return signals_sr, signals    
+
+def aural(audio, rir, fs=48000):
+    """
+    Auralize audio using a room impulse response (RIR). The input audio should be in mono.
+
+    Parameters:
+        - audio: ndarray
+            Mono audio signal to auralize.
+        - rir: ndarray
+            Room impulse response (RIR) used for auralization.
+        - fs: int, optional
+            Sampling rate. Default is 48000.
+
+    Returns:
+        - aur: ndarray
+            Auralized audio signal.
+
+    """
+    #Convoluciono para auralizar
+    aur = signal.fftconvolve(audio, rir)
+    
+    #Normalizo
+    aur = aur / np.max(np.abs(aur))  
+    
+    return aur
