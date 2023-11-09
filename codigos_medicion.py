@@ -11,6 +11,9 @@ import soundfile as sf
 
 
 def sineSweep(duration, init_f, end_f, fs=48000):
+    """
+    asdasdd
+    """
     
     #Genero un tiempo
     t = np.linspace(0, duration, duration*fs)
