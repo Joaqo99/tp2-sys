@@ -2,7 +2,7 @@ import soundfile as sf
 from IPython.display import Audio
 import numpy as np
 import filters_bank as fb
-import pandas_read as pr
+import read_files as rf
 from scipy import signal
 
 def load_audio(file_name):
@@ -331,58 +331,16 @@ def prom_rirs(rirs):
 
 def get_paths(filename, sheet_name):
     """
-    Get file paths from an Excel file.
-
-    Parameters:
-        filename: string. The name of the Excel file.
-        sheet_name: string. The name of the Excel sheet containing paths.
-
-    Returns:
-        signals_paths: List of file paths.
-
-    """
-    signals_paths = pr.excel_sheets_data_to_DataFrame(filename, sheet_name)
-    signals_paths = signals_paths[0]["Path"]
-
-    return signals_paths
-
-def get_signals(signals_paths):
-    """
-    Load audio signals from file paths.
-
-    Parameters:
-        signals_paths (list): List of file paths to audio signals.
-
-    Returns:
-        signals_sr: List of loaded audio signals.
-        signals: List of corresponding sample rates.
-
-    """
-    signals = []
-    signals_sr = []
-
-    for i in range(len(signals_paths)):
-        signal_i, sr_i = load_audio(signals_paths[i])  # You'll need to define/load the 'load_audio' function.
-        signals.append(signal_i)
-        signals_sr.append(sr_i)
-
-    return signals_sr, signals
-
-def get_paths(filename, sheet_name):
-    """
     Extract file paths from an Excel file.
 
-    Parameters:
+    Input:
         - filename (str): The name of the Excel file.
         - sheet_name (str): The name of the Excel sheet containing paths.
 
-    Returns:
+    Output:
         - signals_paths (list of str): A list of file paths extracted from the specified Excel sheet.
-
-    Example:
-        file_paths = get_paths("data.xlsx", "Sheet1")
     """
-    signals_paths = pr.excel_sheets_data_to_DataFrame(filename, sheet_name)
+    signals_paths = rf.excel_sheets_data_to_DataFrame(filename, sheet_name)
     signals_paths = signals_paths[0]["Path"]
     
     return signals_paths

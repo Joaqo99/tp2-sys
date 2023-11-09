@@ -128,21 +128,28 @@ def load_signal(filename):
     n, signal = pack
     return n, signal
 
-def plot_leqs(*signals, x=[], title=False, figsize=False, show=True, rotate=False, info_type="Frequency"):
+def plot_leqs(x, *signals, title=False, figsize=False, show=True, rotate=False, info_type="frequency"):
     """
     Plot a variable number of plots of leq values in rows of two plots by row.
     
     Input:
+        - x: list type object. List x-axis values
         - signals : Optional amount of values. For each signal: Dict type object. Must contain:
             - leq: list of leq values.
             - label: string type object.
         - freqs: list of central frequency. Central frequencies of multiple signals over the same axis must be the same.
         - titles: Optional dictionary for subplot titles. Keys are subplot numbers (ax) and values are titles.
+        - show: Bool type object. True by default. Shows the plot
+        - rotate: Bool type object. True by default. Rotates 45º the x-axis values
+        - info_type: 2 posible values: "Frequency" or "Categories". Frequency by de
+            - 
     """
+    if type(x) != list:
+        raise ValueError("x must be a list")
     if figsize:
         plt.figure(figsize=figsize)
 
-    if info_type=="Frequency":
+    if info_type=="frequency":
         x = [str(np.rint(valor)) for valor in x]
     elif info_type == "categories":
         pass
