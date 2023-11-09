@@ -20,16 +20,26 @@ def load_audio(file_name):
 
     audio, fs = sf.read(f"{file_name}")
 
-#    if audio.shape[1] != 1 and audio.shape[1] != 2:
-#        raise Exception("Not valid input")
-#
-#    if audio.shape[1] == 1:
-#        print("El audio es mono")
-#
-#    if audio.shape[1] == 2:
-#        print("El audio es estereo")
-
     return audio , fs
+
+def save_audio(file_name, audio, fs=48000):
+    """
+    Save an audio signal to a file in WAV format.
+
+    Parameters:
+        - file_name (str): Name of the output WAV file.
+        - audio (ndarray): Audio signal to save.
+        - fs (int, optional): Sampling rate. Default is 48000.
+
+    Returns:
+        None
+    """
+    if type(file_name) != str:
+        raise Exception("file_name must be a string")
+
+    sf.write(file_name, audio, fs)
+
+    return 
 
 def play_mono_audio(audio, fs):
     """
@@ -425,6 +435,18 @@ def aural(audio, rir, fs=48000):
     return aur
 
 def get_sonometer_leq(data, central_freqs, *measurements):
+    """
+    Get sound level equivalent (Leq) values from a dataset for specified measurements and central frequencies.
+
+    Parameters:
+        - data (DataFrame): DataFrame containing sound level data with columns 'Frequency [Hz]' and measurement values.
+        - central_freqs (list): List of central frequencies of interest.
+        - measurements (variable arguments): Names of the measurements to extract Leq values for.
+
+    Returns:
+        - leq_values (list): List of Leq values for the specified measurements and central frequencies. If a single measurement is provided, a single list is returned. If multiple measurements are provided, a list of lists is returned.
+
+    """
 
     if len(measurements) == 1:
         i = measurements[0]
@@ -449,4 +471,5 @@ def get_sonometer_leq(data, central_freqs, *measurements):
                     leq = data.loc[filtro_frecuencias, i]
                     leq_values.append(leq)
             all_leqs.append(leq_values)    
+
         return all_leqs    

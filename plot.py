@@ -30,7 +30,7 @@ def plot_signal(*vectors, xticks=None, yticks=None, title=None, file_name=False,
         plt.xlabel("Time [s]")
         if type(xticks) == int:
             plt.xticks(np.arange(0, xticks, 1))
-        elif type(xticks) != None:
+        elif type(xticks) != type(None):            
             raise Exception("xtick value must be an int")
     
     if dB:
@@ -308,43 +308,55 @@ def plot_rir_casos(rir_casos, fs=48000):
 
 def rir_subplot(rir_list, t, plot_type="12-RIR", case = None):
     """
-    
-    
-    Parameters
-    ----------
-    rir_list : TYPE
-        DESCRIPTION.
-    t : TYPE
-        DESCRIPTION.
-    plot_type : TYPE, optional
-    
-        Type: SG-CG for comparation between MIC 3 SG and CG or 
-        type 12-RIR for comparation between 12 RIRs. The default is "12-RIR". 
+    Plot room impulse responses (RIRs) in a subplot arrangement.
 
-    Returns
-    -------
-    None.
+    Parameters:
+        - rir_list (list of ndarrays): List of RIRs to plot.
+        - t (ndarray): Time values corresponding to the RIRs.
+        - plot_type (str, optional): Type of plot. 
+        Options are "SG-CG" for comparison between MIC 3 SG and CG, "2-RIR" for for comparison between 2 RIRs 
+        or"12-RIR" for comparison between 12 RIRs. Default is "12-RIR".
+        - case: Choose between SG or CG in "12-RIR" plot type. Default is not used.
 
+    Returns:
+        None
     """
-    # Crear una figura y un arreglo de subplots
-    fig = plt.figure(figsize=(10, 14))
+    if plot_type == "12-RIR":
+        fig = plt.figure(figsize=(8, 14))
+    else:
+        fig = plt.figure(figsize=(8, 3))
     
     # Iterar a través de las funciones y agregar cada una al subplot
-    for i, func in enumerate(rir_list):
-        # Crear un subplot en la posición (n_filas, n_columnas, índice)
-        plt.subplot(6, 2, i + 1)
-        plt.plot(t, func, "g")
-        if plot_type == "SG-CG":
-            if i==0:
-                plt.title(f"RIR - MIC 3 - SG")
+    if len(rir_list) == 2:
+        for i, func in enumerate(rir_list):
+            # Crear un subplot en la posición (n_filas, n_columnas, índice)
+            plt.subplot(1, 2, i + 1)
+            plt.plot(t, func, "g")
+            if plot_type == "SG-CG":
+                if i==0:
+                    plt.title(f"RIR - MIC 3 - SG")
+                else:
+                    plt.title(f"RIR - MIC 3 - CG")
             else:
-                plt.title(f"RIR - MIC 3 - CG")
-        else:
-            plt.title(f"RIR posicion {i + 1}  {case}")
-        plt.xlabel("Tiempo [s]", fontsize=13)
-        plt.ylabel("Amplitud", fontsize=13)
-        plt.grid()
-    
+                if i==0:
+                    plt.title(f"RIR - {i+1}")
+                else:
+                    plt.title(f"RIR - {i+2}")
+            plt.ylabel("Amplitud", fontsize=13)
+            plt.xlabel("Tiempo[s]", fontsize=13)
+            plt.grid()
+    else:                       # 12 - RIRs
+        for i, func in enumerate(rir_list):
+            # Crear un subplot en la posición (n_filas, n_columnas, índice)
+            plt.subplot(6, 2, i + 1)
+            plt.plot(t, func, "g")
+            if i+1 < 6:
+                plt.title(f"RIR posicion {i+1} - F1 - {case}")
+            else:
+                plt.title(f"RIR posicion {(i+1)- 6} - F2 - {case}")
+            plt.ylabel("Amplitud", fontsize=13)
+            plt.xlabel("Tiempo[s]", fontsize=13)
+            plt.grid()
     plt.tight_layout()
     plt.show()
     return
