@@ -2,6 +2,17 @@ from scipy import signal
 import numpy as np
 
 def create_octave_filter(f0, fs):
+    """
+    Create an octave bandpass filter.
+
+    Parameters:
+        - f0 (float): Center frequency of the filter in Hz.
+        - fs (int): Sampling rate.
+
+    Returns:
+        - pol_coef (list of ndarrays): Filter coefficients [b, a].
+
+    """
     f1 = octave_rel**(-1/2)*f0
     f2 = octave_rel**(1/2)*f0
 
@@ -12,6 +23,17 @@ def create_octave_filter(f0, fs):
     return pol_coef
 
 def create_third_octave_filter(f0, fs):
+    """
+    Create a third-octave bandpass filter.
+
+    Parameters:
+        - f0 (float): Center frequency of the filter in Hz.
+        - fs (int): Sampling rate.
+
+    Returns:
+        - pol_coef (list of ndarrays): Filter coefficients [b, a].
+
+    """
     f1 = (octave_rel**(-1/6))*f0
     f2 = (octave_rel**(1/6))*f0
 
