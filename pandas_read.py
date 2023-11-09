@@ -22,4 +22,3 @@ def excel_sheets_data_to_DataFrame(file_name, *sheet_names):
         sheet = pd.read_excel(file_name, sheet_name = sheet)
         data.append(sheet)
     return data
- 

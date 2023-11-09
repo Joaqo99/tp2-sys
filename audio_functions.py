@@ -423,3 +423,30 @@ def aural(audio, rir, fs=48000):
     aur = aur / np.max(np.abs(aur))  
     
     return aur
+
+def get_sonometer_leq(data, central_freqs, *measurements):
+
+    if len(measurements) == 1:
+        i = measurements[0]
+        leq_values = []
+        for freq in data["Frequency [Hz]"].values:
+            freq = int(np.rint(freq))
+            if freq in central_freqs:
+                filtro_frecuencias = data["Frequency [Hz]"] == freq
+                leq = data.loc[filtro_frecuencias, i].values
+                leq_values.append(float(leq))
+
+        return leq_values
+
+    elif len(measurements) > 1:
+        all_leqs = []
+        for i in measurements:
+            leq_values = []
+            for freq in data["Frequency [Hz]"].values:
+                freq = int(np.rint(freq))
+                if freq in central_freqs:
+                    filtro_frecuencias = data["Frequency [Hz]"] == freq
+                    leq = data.loc[filtro_frecuencias, i]
+                    leq_values.append(leq)
+            all_leqs.append(leq_values)    
+        return all_leqs    
