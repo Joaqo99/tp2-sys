@@ -329,9 +329,9 @@ def rir_subplot(rir_list, t, plot_type="12-RIR", case = None):
         None
     """
     if plot_type == "12-RIR":
-        fig = plt.figure(figsize=(8, 14))
+        fig = plt.figure(figsize=(10, 12))
     else:
-        fig = plt.figure(figsize=(8, 3))
+        fig = plt.figure(figsize=(10, 4))
     
     # Iterar a través de las funciones y agregar cada una al subplot
     if len(rir_list) == 2:
