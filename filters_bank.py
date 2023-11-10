@@ -1,7 +1,7 @@
 from scipy import signal
 import numpy as np
 
-def create_octave_filter(f0, fs):
+def create_octave_filter(f0, fs, order):
     """
     Create an octave bandpass filter.
 
@@ -18,11 +18,11 @@ def create_octave_filter(f0, fs):
 
     fc1 = f1/(fs*0.5)
     fc2 = f2/(fs*0.5)
-    b, a = signal.butter(2, [fc1, fc2], btype='bandpass')
+    b, a = signal.butter(order, [fc1, fc2], btype='bandpass')
     pol_coef = [b, a]
     return pol_coef
 
-def create_third_octave_filter(f0, fs):
+def create_third_octave_filter(f0, fs, order):
     """
     Create a third-octave bandpass filter.
 
@@ -39,7 +39,7 @@ def create_third_octave_filter(f0, fs):
 
     fc1 = f1/(fs*0.5)
     fc2 = f2/(fs*0.5)
-    b, a = signal.butter(2, [fc1, fc2], btype='bandpass')
+    b, a = signal.butter(order, [fc1, fc2], btype='bandpass')
     pol_coef = [b, a]
     return pol_coef
 
