@@ -18,7 +18,7 @@ def plot_signal(*vectors, xticks=None, yticks=None, title=None, file_name=False,
         - log: boolean type object. Optional.
         - figsize: tuple of ints type object. Optional.
         - dB: Bool type object. Optional, false by default. If true, the amplitude is in dB scale.
-        - plot_type: str type. Type of signal to show. Can be a dB or temporal graph.
+        - plot_type: str type. Type of signal to show. Can be a ED or temporal graph.
     Output:
         - Signal plot
         - If file_name is true, saves the figure and prints a message.
@@ -26,18 +26,24 @@ def plot_signal(*vectors, xticks=None, yticks=None, title=None, file_name=False,
     if figsize:
         plt.figure(figsize=figsize) 
 
+    if type(xticks) != int and type(xticks) != type(None):            
+            raise Exception("xtick value must be an int")
+    
+    
+    if type(xticks) == int:
+        if xticks == 1:
+            plt.xticks(np.arange(0, xticks, 0.1))
+        else:
+            plt.xticks(np.arange(0, xticks+1, 1))
+
     for vector in vectors:
         n, signal = vector
         plt.plot(n, signal)
         plt.xlabel("Tiempo [s]")
         # Agregar líneas en el eje y y x a -60dB
-        if plot_type == "dB":
+        if plot_type == "ED":
             plt.axhline(y=-60, color='r', linestyle='--', label='-60 dB Threshold')  # Línea horizontal
-            plt.axvline(x=0.49, color='g', linestyle='--', label='Crossing Time')  # Línea vertical
-        if type(xticks) == int:
-            plt.xticks(np.arange(0, xticks, 1))
-        elif type(xticks) != type(None):            
-            raise Exception("xtick value must be an int")
+            plt.axvline(x=0.47, color='g', linestyle='--', label='Crossing Time')  # Línea vertical
     
     if dB:
         plt.ylabel("Amplitud [dB]")
@@ -45,10 +51,12 @@ def plot_signal(*vectors, xticks=None, yticks=None, title=None, file_name=False,
         plt.ylabel("Amplitud")
 
     if type(yticks) == np.ndarray:
+        if type(yticks) != np.ndarray:            
+            raise Exception("ytick value must be an array")
         plt.ylim(np.min(yticks), np.max(yticks))
         plt.yticks(yticks)
     plt.grid(grid)
-
+    
     if log:
         plt.yscale("log")
         plt.ylabel("Amplitud (logarithmic)")
@@ -358,16 +366,14 @@ def plot_fft(audio_signal, sample_rate=48000, N=10, title="Frequency Spectrum"):
 
 def plot_rir_casos(rir_casos, fs=48000):
     """
-    Grafico respuesta en frecuencia superpuestas de los 2 casos del Aula
+    Plot the overlaid frequency responses of different room impulse response (RIR) cases.
 
-    Parameters
-    ----------
-    rir_casos : TYPE
-        DESCRIPTION.
+    Parameters:
+        - rir_casos (list of ndarrays): List of RIRs to plot.
+        - fs (int, optional): Sampling rate. Default is 48000.
 
-    Returns
-    -------
-    None.
+    Returns:
+        None
 
     """
     for i, func in enumerate(rir_casos):
@@ -410,7 +416,7 @@ def plot_rir_casos(rir_casos, fs=48000):
 
     return
 
-def rir_subplot(rir_list, t, plot_type="12-RIR", case = None):
+def rir_subplot(rir_list, t, plot_type="12-RIR", case=None, title=None):
     """
     Plot room impulse responses (RIRs) in a subplot arrangement.
 
@@ -421,14 +427,15 @@ def rir_subplot(rir_list, t, plot_type="12-RIR", case = None):
         Options are "SG-CG" for comparison between MIC 3 SG and CG, "2-RIR" for for comparison between 2 RIRs 
         or"12-RIR" for comparison between 12 RIRs. Default is "12-RIR".
         - case: Choose between SG or CG in "12-RIR" plot type. Default is not used.
+        - title: list type. Optional. Add a title to each plot separately
 
     Returns:
         None
     """
     if plot_type == "12-RIR":
-        fig = plt.figure(figsize=(10, 12))
+        fig = plt.figure(figsize=(15, 8))
     else:
-        fig = plt.figure(figsize=(10, 4))
+        fig = plt.figure(figsize=(10, 3))
     
     # Iterar a través de las funciones y agregar cada una al subplot
     if len(rir_list) == 2:
@@ -442,19 +449,17 @@ def rir_subplot(rir_list, t, plot_type="12-RIR", case = None):
                 else:
                     plt.title(f"RIR | MIC 3 | CG")
             else:
-                if i==0:
-                    plt.title(f"RIR | {i+1}")
-                else:
-                    plt.title(f"RIR | {i+2}")
+                if title:
+                    plt.title(title[i])
             plt.ylabel("Amplitud", fontsize=13)
             plt.xlabel("Tiempo[s]", fontsize=13)
             plt.grid()
     else:                       # 12 - RIRs
         for i, func in enumerate(rir_list):
             # Crear un subplot en la posición (n_filas, n_columnas, índice)
-            plt.subplot(6, 2, i + 1)
+            plt.subplot(4, 3, i + 1)
             plt.plot(t, func, "g")
-            if i+1 < 6:
+            if i+1 <= 6:
                 plt.title(f"RIR posicion {i+1} | F1 | {case}")
             else:
                 plt.title(f"RIR posicion {(i+1)- 6} | F2 | {case}")
