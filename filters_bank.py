@@ -57,7 +57,7 @@ def sinesweep_filter(f01, f02, fs):
         - f02: last third octave band
         - fs: sample frequency
     Output:
-        - pol_coef: list type object. Numerator (b) and denominator (a) polynomials of the IIR filter. 
+        - sos: array type object. Second order sections of the filter. 
     """
     #calcula frecuencias laterales del filtro
     f1 = octave_rel**(-1/6)*f01

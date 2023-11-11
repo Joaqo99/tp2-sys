@@ -62,19 +62,18 @@ def plot_signal(*vectors, xticks=None, yticks=None, title=None, file_name=False,
     else:
         plt.ioff()
 
-def plot_ftf(filters, fs, f_lim=False, figsize=False, show=True):
+def plot_ftf(filters, fs, f_lim=False, figsize=False, show=True, title=False):
     """
     Plots the filter transfer function
     Input:
-        - filters: list of filters.
+        - filters: list of filters. They must be in sos format
         - fs: int type object. sample rate
         - f_lim: list type object. Frequency visualization limits. False 
     """
     if figsize:
         plt.figure(figsize=figsize)
-    for pol_coef in filters:
-        b, a = pol_coef
-        wn, H = signal.freqz(b,a, worN=8192)
+    for sos in filters:
+        wn, H = signal.sosfreqz(sos, worN=4096)
         f= (wn*(0.5*fs))/np.pi
 
         eps = np.finfo(float).eps
@@ -84,7 +83,6 @@ def plot_ftf(filters, fs, f_lim=False, figsize=False, show=True):
 
         # #La magnitud de H se grafica usualmente en forma logarítmica
         plt.semilogx(f, H_mag)
-    plt.ylabel('Mag( dB )')
     plt.xlabel('Frecuencia (Hz)')
 
     if f_lim:
@@ -94,20 +92,22 @@ def plot_ftf(filters, fs, f_lim=False, figsize=False, show=True):
         plt.xticks(xticks, xticks)
 
     plt.ylim(-6,1)
-    plt.title('Magnitud de H')
-    plt.ylabel('Mag( dB )')
+    if title:
+        plt.title(title)
+
+    plt.ylabel('Magnitude [dB]')
     plt.grid()
     if show: 
         plt.show()
     else:
         plt.ioff()
 
-def check_filter_plot(f0, pol_coef, fs, bw, title=False, figsize=False, show=True):
+def check_filter_plot(f0, sos, fs, bw, title=False, figsize=False, show=True):
     """
     Plots the magnitude (in dB) of a filter in frequency respect the attenuation limits.
     Inputs:
         - f0: int type object. central frequency of filter
-        - pol_coef: list type object. Filter coefficients
+        - sos: array type object. Second order sections of the filter.
         - fs: int type object. sample rate
         - bw: str type object. Bandwidth of filter. Two possible values:
             - octave
@@ -160,11 +160,8 @@ def check_filter_plot(f0, pol_coef, fs, bw, title=False, figsize=False, show=Tru
         minor_ticks = True
     else:
         raise ValueError('No valid bw input. Values must be "octave" or "third"')
-    
 
-    b, a = pol_coef
-
-    wn, H = signal.freqz(b,a, worN=8192)
+    wn, H = signal.sosfreqz(sos, worN=4096)
     f= (wn*(0.5*fs))/(np.pi*f0)
 
     eps = np.finfo(float).eps

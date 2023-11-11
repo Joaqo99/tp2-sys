@@ -275,8 +275,8 @@ def rir_filt(rir, f1=70, f2=6000, sr = 48000):
             Filtered room impulse response (RIR).
 
     """
-    coef_pol = fb.sinesweep_filter(f1, f2, sr)
-    rir_filtered = fb.filter_audio(coef_pol, rir)
+    sos = fb.sinesweep_filter(f1, f2, sr)
+    rir_filtered = fb.filter_audio(sos, rir)
     
     return rir_filtered
 
