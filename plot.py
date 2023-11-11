@@ -1,8 +1,11 @@
 from matplotlib import pyplot as plt
 from matplotlib.ticker import MaxNLocator
 from scipy import signal
-
 import numpy as np
+
+
+nominal_oct_central_freqs = [31.5, 63, 125.0, 250.0, 500.0, 1000.0, 2000.0, 4000.0, 8000.0, 160000]
+
 
 def plot_signal(*vectors, xticks=None, yticks=None, title=None, file_name=False, grid=False, log=False, figsize=False, dB=False, show=True, plot_type=None):
     """
@@ -76,7 +79,7 @@ def plot_signal(*vectors, xticks=None, yticks=None, title=None, file_name=False,
     else:
         plt.ioff()
 
-def plot_ftf(filters, fs, f_lim=False, figsize=False, show=True, title=False):
+def plot_ftf(filters, fs, f_lim=False, figsize=False, show=True, title=False, xticks=nominal_oct_central_freqs):
     """
     Plots the filter transfer function
     Input:
@@ -87,7 +90,7 @@ def plot_ftf(filters, fs, f_lim=False, figsize=False, show=True, title=False):
     if figsize:
         plt.figure(figsize=figsize)
     for sos in filters:
-        wn, H = signal.sosfreqz(sos, worN=4096)
+        wn, H = signal.sosfreqz(sos, worN=16384)
         f= (wn*(0.5*fs))/np.pi
 
         eps = np.finfo(float).eps
@@ -102,7 +105,7 @@ def plot_ftf(filters, fs, f_lim=False, figsize=False, show=True, title=False):
     if f_lim:
         f_min, f_max = f_lim
         plt.xlim(f_min, f_max)
-        xticks =list(filter(lambda f: f >= f_min and f <= f_max, oct_central_freqs))
+        xticks =list(filter(lambda f: f >= f_min and f <= f_max, xticks))
         plt.xticks(xticks, xticks)
 
     plt.ylim(-6,1)
@@ -175,7 +178,7 @@ def check_filter_plot(f0, sos, fs, bw, title=False, figsize=False, show=True):
     else:
         raise ValueError('No valid bw input. Values must be "octave" or "third"')
 
-    wn, H = signal.sosfreqz(sos, worN=4096)
+    wn, H = signal.sosfreqz(sos, worN=16384)
     f= (wn*(0.5*fs))/(np.pi*f0)
 
     eps = np.finfo(float).eps
@@ -205,31 +208,6 @@ def check_filter_plot(f0, sos, fs, bw, title=False, figsize=False, show=True):
         plt.show()
     else:
         plt.ioff()
-
-def save_signal(n, signal, filename):
-    """
-    Wraps a time/sample and signal vectors into a package to save it as .npy
-    Input:
-        - n: array type object. Time/sample array.
-        - signal: array type object. Signal array.
-        - filename: str.
-    """
-    pack = np.stack((n, signal))
-    np.save(f'audios/{filename}.npy', pack)
-    print(f"Señal guardado en ./audios/{filename}.npy")
-
-def load_signal(filename):
-    """
-    Wraps a time/sample and signal vectors into a package to save it as .npy
-    Input:
-        - filename: str.
-    Ouput:
-        - n: array type object. Time/sample array.
-        - signal: array type object. Signal array.
-    """
-    pack = np.load(f'audios/{filename}.npy')
-    n, signal = pack
-    return n, signal
 
 def plot_leqs(x, *signals, title=False, figsize=False, show=True, rotate=False, info_type="frequency"):
     """
@@ -649,5 +627,3 @@ def cont_signal_ploter(t, signal, labels = ("Tiempo [s]","Amplitud"), xlimits = 
     
     return
 
-oct_central_freqs = [125.0, 250.0, 500.0, 1000.0, 2000.0, 4000.0]
-thirds_central_freqs = [78.745, 99.123, 125.0, 157.49, 198.43, 250.0, 314.98, 396.85, 500.0, 628.96, 793.7, 1000.0, 1259.9, 1587.4, 2000.0, 2519.8, 3174.8, 4000.0, 5039.7]
