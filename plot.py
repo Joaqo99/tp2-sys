@@ -1,9 +1,10 @@
 from matplotlib import pyplot as plt
+from matplotlib.ticker import MaxNLocator
 from scipy import signal
 
 import numpy as np
 
-def plot_signal(*vectors, xticks=None, yticks=None, title=None, file_name=False, grid=False, log=False, figsize=False, dB=False, show=True):
+def plot_signal(*vectors, xticks=None, yticks=None, title=None, file_name=False, grid=False, log=False, figsize=False, dB=False, show=True, plot_type=None):
     """
     Plots a signal.
     Input:
@@ -17,6 +18,7 @@ def plot_signal(*vectors, xticks=None, yticks=None, title=None, file_name=False,
         - log: boolean type object. Optional.
         - figsize: tuple of ints type object. Optional.
         - dB: Bool type object. Optional, false by default. If true, the amplitude is in dB scale.
+        - plot_type: str type. Type of signal to show. Can be a dB or temporal graph.
     Output:
         - Signal plot
         - If file_name is true, saves the figure and prints a message.
@@ -27,16 +29,20 @@ def plot_signal(*vectors, xticks=None, yticks=None, title=None, file_name=False,
     for vector in vectors:
         n, signal = vector
         plt.plot(n, signal)
-        plt.xlabel("Time [s]")
+        plt.xlabel("Tiempo [s]")
+        # Agregar líneas en el eje y y x a -60dB
+        if plot_type == "dB":
+            plt.axhline(y=-60, color='r', linestyle='--', label='-60 dB Threshold')  # Línea horizontal
+            plt.axvline(x=0.49, color='g', linestyle='--', label='Crossing Time')  # Línea vertical
         if type(xticks) == int:
             plt.xticks(np.arange(0, xticks, 1))
         elif type(xticks) != type(None):            
             raise Exception("xtick value must be an int")
     
     if dB:
-        plt.ylabel("Amplitude [dB]")
+        plt.ylabel("Amplitud [dB]")
     else:
-        plt.ylabel("Amplitude")
+        plt.ylabel("Amplitud")
 
     if type(yticks) == np.ndarray:
         plt.ylim(np.min(yticks), np.max(yticks))
@@ -45,9 +51,9 @@ def plot_signal(*vectors, xticks=None, yticks=None, title=None, file_name=False,
 
     if log:
         plt.yscale("log")
-        plt.ylabel("Amplitude (logarithmic)")
+        plt.ylabel("Amplitud (logarithmic)")
     if dB:
-        plt.ylabel("Amplitude [dB]")
+        plt.ylabel("Amplitud [dB]")
 
     if title:
         plt.title(title)
@@ -95,7 +101,7 @@ def plot_ftf(filters, fs, f_lim=False, figsize=False, show=True, title=False):
     if title:
         plt.title(title)
 
-    plt.ylabel('Magnitude [dB]')
+    plt.ylabel('Magnitud [dB]')
     plt.grid()
     if show: 
         plt.show()
@@ -337,8 +343,8 @@ def plot_fft(audio_signal, sample_rate=48000, N=10, title="Frequency Spectrum"):
     plt.xticks([t for t in ticks], [f'{t}' for t in ticks])
     plt.xlim(20, 22000)
     plt.ylim(-80, np.max(fft_mag_db) + 10)
-    plt.xlabel("Frequency [Hz]", fontsize=14)
-    plt.ylabel("Amplitude [dB]", fontsize=14)
+    plt.xlabel("Frecuencia [Hz]", fontsize=14)
+    plt.ylabel("Amplitud [dB]", fontsize=14)
     if N != 1:
         plt.title(f"{title} - Filter Window = {N}", fontsize=16)
     else:
@@ -430,14 +436,14 @@ def rir_subplot(rir_list, t, plot_type="12-RIR", case = None):
             plt.plot(t, func, "g")
             if plot_type == "SG-CG":
                 if i==0:
-                    plt.title(f"RIR - MIC 3 - SG")
+                    plt.title(f"RIR | MIC 3 | SG")
                 else:
-                    plt.title(f"RIR - MIC 3 - CG")
+                    plt.title(f"RIR | MIC 3 | CG")
             else:
                 if i==0:
-                    plt.title(f"RIR - {i+1}")
+                    plt.title(f"RIR | {i+1}")
                 else:
-                    plt.title(f"RIR - {i+2}")
+                    plt.title(f"RIR | {i+2}")
             plt.ylabel("Amplitud", fontsize=13)
             plt.xlabel("Tiempo[s]", fontsize=13)
             plt.grid()
@@ -447,9 +453,9 @@ def rir_subplot(rir_list, t, plot_type="12-RIR", case = None):
             plt.subplot(6, 2, i + 1)
             plt.plot(t, func, "g")
             if i+1 < 6:
-                plt.title(f"RIR posicion {i+1} - F1 - {case}")
+                plt.title(f"RIR posicion {i+1} | F1 | {case}")
             else:
-                plt.title(f"RIR posicion {(i+1)- 6} - F2 - {case}")
+                plt.title(f"RIR posicion {(i+1)- 6} | F2 | {case}")
             plt.ylabel("Amplitud", fontsize=13)
             plt.xlabel("Tiempo[s]", fontsize=13)
             plt.grid()
