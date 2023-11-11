@@ -145,7 +145,7 @@ def Leq(signal, ref):
     """
     signal_pascal = scale_amplitude(signal, ref)[0]
 
-    p_r = (2.0e-5)**2.
+    p_r = (20.0e-6)**2.
     signal2 = signal_pascal**2
 
     leq = 10*np.log10(np.mean(signal2)/(p_r))

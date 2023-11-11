@@ -232,11 +232,12 @@ def plot_leqs(x, *signals, title=False, figsize=False, show=True, rotate=False, 
         - signals : Optional amount of values. For each signal: Dict type object. Must contain:
             - leq: list of leq values.
             - label: string type object.
+            - color: string type object.
         - freqs: list of central frequency. Central frequencies of multiple signals over the same axis must be the same.
         - titles: Optional dictionary for subplot titles. Keys are subplot numbers (ax) and values are titles.
         - show: Bool type object. True by default. Shows the plot
         - rotate: Bool type object. True by default. Rotates 45º the x-axis values
-        - info_type: 2 posible values: "Frequency" or "Categories". Frequency by de
+        - info_type: 2 posible values: "frequency" or "categories". Frequency by de
             - 
     """
     if type(x) != list:
@@ -254,10 +255,11 @@ def plot_leqs(x, *signals, title=False, figsize=False, show=True, rotate=False, 
     #import pdb; pdb.set_trace()
 
     for signal in signals:
-        if "label" in signal.keys():
-            plt.bar(x, signal["leq"], label=signal['label'], alpha=0.7)
-        else:
-            plt.bar(x, signal["leq"], alpha=0.7)
+        label = signal["label"] if "label" in signal.keys() else None
+        color = signal["color"] if "color" in signal.keys() else None
+
+        plt.bar(x, signal["leq"], label=label, color=color, alpha=0.7)
+
 
         if info_type=="Frequency":
             plt.xlabel("Frecuencias centrales [Hz]")
