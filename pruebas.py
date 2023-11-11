@@ -6,7 +6,7 @@ from scipy import signal
 from matplotlib import pyplot as plt
 import numpy as np
 
-def check_filter_plot(f0, pol_coef, fs, bw, title=False, figsize=False, show=True):
+def check_filter_plot(f0, sos, fs, bw, title=False, figsize=False, show=True):
     """
     Plots the magnitude (in dB) of a filter in frequency respect the attenuation limits.
     Inputs:
@@ -64,11 +64,8 @@ def check_filter_plot(f0, pol_coef, fs, bw, title=False, figsize=False, show=Tru
         minor_ticks = True
     else:
         raise ValueError('No valid bw input. Values must be "octave" or "third"')
-    
 
-    b, a = pol_coef
-
-    wn, H = signal.freqz(b,a, worN=512*6)
+    wn, H = signal.sosfreqz(sos, worN=512*6)
     f= (wn*(0.5*fs))/(np.pi*f0)
 
     eps = np.finfo(float).eps
@@ -99,15 +96,54 @@ def check_filter_plot(f0, pol_coef, fs, bw, title=False, figsize=False, show=Tru
     else:
         plt.ioff()
 
-pol_coef_1 = fb.create_octave_filter(1000, 48000, 3)
-check_filter_plot(1000, pol_coef_1, 48000,  "octave")
 
-pol_coef_2 = fb.create_third_octave_filter(1000, 48000, 4)
-check_filter_plot(1000, pol_coef_2, 48000,  "third")
+octave_rel = 2
+ref_freq = 1000
 
-resp_en_freq_octavas = lambda: plot.plot_ftf([pol_coef_1], 48000, f_lim=[80, 6000], show=False)
-atenuacion_octavas = lambda: plot.check_filter_plot(1000, pol_coef_1, 48000,  "octave")
-resp_en_freq_tercios = lambda: plot.plot_ftf([pol_coef_2], 48000, f_lim=[60, 6000], show=False)
-atenuacion_tercios = lambda: plot.check_filter_plot(1000, pol_coef_2, 48000,  "third")
 
-plot.multiplot(resp_en_freq_octavas, atenuacion_octavas, resp_en_freq_tercios, atenuacion_tercios, figsize=(16, 10))
+def sos_create_octave_filter(f0, fs, order):
+    """
+    Create an octave bandpass filter.
+
+    Parameters:
+        - f0 (float): Center frequency of the filter in Hz.
+        - fs (int): Sampling rate.
+
+    Returns:
+        - pol_coef (list of ndarrays): Filter coefficients [b, a].
+
+    """
+    f1 = octave_rel**(-1/2)*f0
+    f2 = octave_rel**(1/2)*f0
+
+    fc1 = f1/(fs*0.5)
+    fc2 = f2/(fs*0.5)
+    sos = signal.butter(order, [fc1, fc2], btype='bandpass', output='sos')
+    return sos
+
+def sos_create_third_octave_filter(f0, fs, order):
+    """
+    Create a third-octave bandpass filter.
+
+    Parameters:
+        - f0 (float): Center frequency of the filter in Hz.
+        - fs (int): Sampling rate.
+
+    Returns:
+        - pol_coef (list of ndarrays): Filter coefficients [b, a].
+
+    """
+    f1 = (octave_rel**(-1/6))*f0
+    f2 = (octave_rel**(1/6))*f0
+
+    fc1 = f1/(fs*0.5)
+    fc2 = f2/(fs*0.5)
+    sos = signal.butter(order, [fc1, fc2], btype='bandpass', output='sos')
+    return sos
+
+# VALORES PARA PROBAR
+sos_1 = sos_create_octave_filter(1000, 48000, 3)
+check_filter_plot(1000, sos_1, 48000,  "octave")
+
+sos_2 = sos_create_third_octave_filter(250, 48000, 4)
+check_filter_plot(250, sos_2, 48000,  "third")

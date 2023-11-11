@@ -3,57 +3,50 @@ import numpy as np
 
 def create_octave_filter(f0, fs, order):
     """
-    Create an octave bandpass filter.
-
-    Parameters:
+    Creates an octave bandpass filter using second order sections.
+    Input:
         - f0 (float): Center frequency of the filter in Hz.
         - fs (int): Sampling rate.
 
-    Returns:
-        - pol_coef (list of ndarrays): Filter coefficients [b, a].
-
+    Output:
+        - sos (list of ndarrays): Second order sections for the filter.
     """
     f1 = octave_rel**(-1/2)*f0
     f2 = octave_rel**(1/2)*f0
 
     fc1 = f1/(fs*0.5)
     fc2 = f2/(fs*0.5)
-    b, a = signal.butter(order, [fc1, fc2], btype='bandpass')
-    pol_coef = [b, a]
-    return pol_coef
+    sos = signal.butter(order, [fc1, fc2], btype='bandpass', output='sos')
+    return sos
 
 def create_third_octave_filter(f0, fs, order):
     """
-    Create a third-octave bandpass filter.
-
-    Parameters:
+    Creates a third of octave bandpass filter using second order sections.
+    Input:
         - f0 (float): Center frequency of the filter in Hz.
         - fs (int): Sampling rate.
 
-    Returns:
-        - pol_coef (list of ndarrays): Filter coefficients [b, a].
-
+    Output:
+        - sos (ndarrays): Second order sections for the filter.
     """
     f1 = (octave_rel**(-1/6))*f0
     f2 = (octave_rel**(1/6))*f0
 
     fc1 = f1/(fs*0.5)
     fc2 = f2/(fs*0.5)
-    b, a = signal.butter(order, [fc1, fc2], btype='bandpass')
-    pol_coef = [b, a]
-    return pol_coef
+    sos = signal.butter(order, [fc1, fc2], btype='bandpass', output='sos')
+    return sos
 
-def filter_audio(pol_coef, audio):
+def filter_audio(sos, audio):
     """
-    Generates a filter for a sinesweep response
+    Returns a filtered auido. The filter must be expressed in a Second order section method.
     Input:
-        - pol_coef: list type object. Numerator (b) and denominator (a) polynomials of the IIR filter. 
+        - sos. 
         - audio. Array type object.
     Output:
         - filtered_audio: array type object.
     """
-    b, a = pol_coef
-    filtered_audio = signal.lfilter(b, a, audio)
+    filtered_audio = signal.sosfilt(sos, audio)
     return filtered_audio
 
 def sinesweep_filter(f01, f02, fs):
@@ -75,9 +68,8 @@ def sinesweep_filter(f01, f02, fs):
     fc2 = f2/(fs*0.5)
 
     #genera el filtro
-    b, a = signal.butter(1, [fc1, fc2], btype='bandpass')
-    pol_coef = [b, a]
-    return pol_coef
+    sos = signal.butter(1, [fc1, fc2], btype='bandpass', output='sos')
+    return sos
 
 octave_rel = 2
 ref_freq = 1000
