@@ -68,7 +68,7 @@ def sinesweep_filter(f01, f02, fs):
     fc2 = f2/(fs*0.5)
 
     #genera el filtro
-    sos = signal.butter(1, [fc1, fc2], btype='bandpass', output='sos')
+    sos = signal.butter(4, [fc1, fc2], btype='bandpass', output='sos')
     return sos
 
 octave_rel = 2

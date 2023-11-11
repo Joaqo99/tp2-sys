@@ -256,7 +256,7 @@ def get_rir(audio, sweep_ref, f1,f2, sr=48000):
     
     return rir_trim
 
-def rir_filt(rir, f1=70, f2=6000, sr = 48000):
+def rir_filt(rir, f1=100, f2=5000, sr = 48000):
     """
     Filter a room impulse response (RIR) using a sine sweep filter.
 
