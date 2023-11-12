@@ -7,7 +7,7 @@ import numpy as np
 nominal_oct_central_freqs = [31.5, 63, 125.0, 250.0, 500.0, 1000.0, 2000.0, 4000.0, 8000.0, 160000]
 
 
-def plot_signal(*vectors, xticks=None, yticks=None, title=None, file_name=False, grid=False, log=False, figsize=False, show=True, plot_type=None, y_label="Amplitud"):
+def plot_signal(*vectors, xticks=None, yticks=None, title=None, file_name=False, grid=False, log=False, figsize=False, show=True, plot_type=None, y_label="Amplitud", xlimits = None):
     """
     Plots a signal.
     Input:
@@ -42,11 +42,11 @@ def plot_signal(*vectors, xticks=None, yticks=None, title=None, file_name=False,
     for vector in vectors:
         n, signal = vector
         plt.plot(n, signal)
-        plt.xlabel("Tiempo [s]")
+        plt.xlabel("Tiempo [s]", fontsize=13)
         # Agregar líneas en el eje y y x a -60dB
         if plot_type == "ED":
-            plt.axhline(y=-60, color='r', linestyle='--', label='-60 dB Threshold')  # Línea horizontal
-            plt.axvline(x=0.47, color='g', linestyle='--', label='Crossing Time')  # Línea vertical
+            plt.axhline(y=-60, color='r', linestyle='--', label='-60 dB Threshold') 
+            plt.axvline(x=0.47, color='g', linestyle='--', label='Crossing Time')  
 
     if type(yticks) == np.ndarray:
         if type(yticks) != np.ndarray:            
@@ -55,13 +55,18 @@ def plot_signal(*vectors, xticks=None, yticks=None, title=None, file_name=False,
         plt.yticks(yticks)
     plt.grid(grid)
     
+    if xlimits:
+        if type(xlimits) != tuple:
+            raise ValueError("Xlimits must be tuple type")
+        plt.xlim(xlimits)
+
     if log:
         plt.yscale("log")
 
-    plt.ylabel(f"{y_label}")
+    plt.ylabel(f"{y_label}", fontsize=13)
 
     if title:
-        plt.title(title)
+        plt.title(title, fontsize=15)
 
     #save file
     if file_name:
@@ -278,7 +283,7 @@ def multiplot(*plots, figsize=(8, 5)):
 
     plt.show()
 
-def plot_fft(audio_signal, sample_rate=48000, N=10, title="Frequency Spectrum"):
+def plot_fft(audio_signal, sample_rate=48000, N=10, title="Frequency Spectrum", figsize = False, colors = "g", show = True):
     """
     Generates and displays a graph of the frequency spectrum of an audio signal.
 
@@ -291,6 +296,8 @@ def plot_fft(audio_signal, sample_rate=48000, N=10, title="Frequency Spectrum"):
             Window size parameter for the moving average filter. Default value: 10.
         - title: str
             Optional title for the plot. Default value: "Frequency Spectrum".
+        - colors = str type. Choose color of the plot
+        - show = Bool type. If you can show the plot
 
     Returns:
         - None
@@ -319,26 +326,35 @@ def plot_fft(audio_signal, sample_rate=48000, N=10, title="Frequency Spectrum"):
     fft_mag_db = 20 * np.log10(fft_mag_norm + eps)
 
     # Apply the moving average filter
-    ir = np.ones(N) * 1 / N  # Moving average impulse response
-    smoothed_signal = signal.fftconvolve(fft_mag_db, ir, mode='same')
+    if N > 1:
+        ir = np.ones(N) * 1 / N  # Moving average impulse response
+        smoothed_signal = signal.fftconvolve(fft_mag_db, ir, mode='same')
 
     # Logarithmic scale for the x-axis
-    plt.figure(figsize=(12, 5))
-    plt.semilogx(freqs, smoothed_signal, color='g')
+    if figsize:
+        plt.figure(figsize=figsize) 
+    else:
+        plt.figure(figsize=(12, 5))
+    if N > 1:
+        plt.semilogx(freqs, smoothed_signal, color=colors)
+    else:
+        plt.semilogx(freqs, fft_mag_db, color=colors)
     ticks = [31, 63, 125, 250, 500, 1000, 2000, 4000, 8000, 16000]
     plt.xticks([t for t in ticks], [f'{t}' for t in ticks])
     plt.xlim(20, 22000)
     plt.ylim(-80, np.max(fft_mag_db) + 10)
-    plt.xlabel("Frecuencia [Hz]", fontsize=14)
-    plt.ylabel("Amplitud [dB]", fontsize=14)
-    if N != 1:
-        plt.title(f"{title} - Filter Window = {N}", fontsize=16)
+    plt.xlabel("Frecuencia [Hz]", fontsize=13)
+    plt.ylabel("Amplitud [dB]", fontsize=13)
+    if N != 1 and N !=0:
+        if N < 1 and N != 0:
+            raise ValueError("Value N must be greater than cero")
+        plt.title(f"{title} - Filter Window = {N}", fontsize=15)
     else:
-        plt.title(title, fontsize=16)
+        plt.title(title, fontsize=15)
     plt.grid(True)
 
-    # Display the plot
-    plt.show()
+    if show: 
+        plt.show()
 
 def plot_rir_casos(rir_casos, fs=48000):
     """
@@ -379,10 +395,6 @@ def plot_rir_casos(rir_casos, fs=48000):
     plt.ylim(-80, np.max(fft_mag_db) + 10)
     plt.xlabel("Frecuencia [Hz]", fontsize=14)
     plt.ylabel("Amplitud [dB]", fontsize=14)
-    # if N != 1:
-    #     plt.title(f"{title} - Ventana del filtro = {N}", fontsize=16)
-    # else:
-    #     plt.title(title, fontsize=16)
     plt.title(f"Respuesta en frecuencia superpuesta", fontsize=16)
     plt.grid(True)
     
@@ -512,6 +524,8 @@ def plot_mult_fft(audio_signal1, audio_signal2, fs=48000, N=10, title="Espectro 
     plt.xlabel("Frecuencia [Hz]", fontsize=14)
     plt.ylabel("Amplitud [dB]", fontsize=14)
     if N != 1:
+        if N <= 0:
+            raise ValueError("Value N must be greater than cero") 
         plt.title(f"{title} - Ventana del filtro = {N}", fontsize=16)
     else:
         plt.title(title, fontsize=16)
@@ -521,107 +535,3 @@ def plot_mult_fft(audio_signal1, audio_signal2, fs=48000, N=10, title="Espectro 
     # Muestra el gráfico
     plt.show()
     return
-
-def cont_signal_ploter(t, signal, labels = ("Tiempo [s]","Amplitud"), xlimits = (None, None), ylimits = (None, None), xscale = "linear", yscale = "linear", x_mathtext = False, y_mathtext = False, x_ticks = (None), y_ticks = (None), title = "", col = "#1f77b4", grid = True, size = (8, 4), save = False, file_name = "mi_grafico", image_dpi = 200):
-    """
-    Plot a continuous signal.
-
-    Parameters:
-    -----------
-    t : numpy.ndarray
-        Array of time values
-    signal : numpy.ndarray
-        Array containing the signal values
-    labels : tuple, optional
-        Labels for the x and y axes (default is ("Tiempo [s]", "Amplitud"))
-    xlimits : tuple, optional
-        Tuple specifying the minimum and maximum values for the x-axis
-    ylimits : tuple, optional
-        Tuple specifying the minimum and maximum values for the y-axis
-    xscale : str, optional
-        Scaling type for the x-axis (default is "linear")
-    yscale : str, optional
-        Scaling type for the y-axis (default is "linear")
-    x_mathtext : bool, optional
-        Use MathText for the x-axis labels (default is False)
-    y_mathtext : bool, optional
-        Use MathText for the y-axis labels (default is False)
-    title : str, optional
-        Title of the plot (default is "")
-    col : str, optional
-        Color of the signal plot (default is "#1f77b4").
-    grid : bool, optional
-        Enable grid lines on the plot (default is True).
-    size : tuple, optional
-        Size of the plot figure in inches (default is (8, 4)).
-    save : bool, optional
-        Save the plot as an image file (default is False).
-    file_name : str, optional
-        Name of the saved image file (default is "my_plot").
-    image_dpi : int, optional
-        DPI (dots per inch) for the saved image file (default is 200).
-
-    Returns:
-    --------
-    None
-    """
-    x, y = labels
-    xlim_min, xlim_max = xlimits
-    ylim_min, ylim_max = ylimits
-    x_fig_size, y_fig_size = size
-    
-    fig, ax = plt.subplots()
-    
-    fig.set_size_inches(x_fig_size, y_fig_size)
-    
-    ax.plot(t, signal, color = col)
-        
-    if grid == True:
-        plt.grid(alpha = 0.7)
-    elif grid == False:
-        pass
-    if x_mathtext == True:
-        ax.ticklabel_format(axis = "x", scilimits = (0, 0), useLocale = True, useMathText = True)
-    else:
-        pass
-    if y_mathtext == True:
-        ax.ticklabel_format(axis = "y", scilimits = (0,0), useLocale = True, useMathText = True)
-    else:
-        pass
-    if xlim_min != None or xlim_max != None:
-        ax.set_xlim(xlim_min, xlim_max)
-    else:
-        ax.set_xlim(auto = True)
-    
-    if ylim_min != None or ylim_max != None:
-        ax.set_ylim(ylim_min, ylim_max)
-    else:
-        ax.set_ylim(auto = True)
-    
-    if y_ticks != None:
-        ax.set_yticks(y_ticks)
-    else:
-        pass
-    
-    if x_ticks != None:
-        ax.set_xticks(x_ticks)
-    else:
-        pass
-    
-    ax.xaxis.set_major_locator(MaxNLocator(nbins = "auto", integer=True, steps = [1, 2, 5, 10]))
-    
-    plt.xscale(xscale)
-    plt.yscale(yscale)
-
-    ax.set_title(title, fontsize=16)
-    
-    ax.set_xlabel(x, fontsize=12)
-    ax.set_ylabel(y, fontsize=12)
-    
-    if save == True:
-        plt.savefig(f'{file_name}.png', dpi = image_dpi)
-    
-    plt.show()
-    
-    return
-
