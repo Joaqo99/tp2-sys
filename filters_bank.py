@@ -71,6 +71,42 @@ def sinesweep_filter(f01, f02, fs):
     sos = signal.butter(4, [fc1, fc2], btype='bandpass', output='sos')
     return sos
 
+def create_octaves_filter_bank(f_list, fs, order):
+    """
+    Returns octaves filter bank
+    Input:
+        - f_list: list type object. List of exact central frequencies
+        - fs: Int type object. Sample rate.
+        - order: int type object. Order of the filters
+    Returns:
+        - filter_bank: list type object. Contains the second order sections array for each filter
+    """
+    filters_bank = []
+
+    for f in f_list:
+        sos = create_octave_filter(f, fs, order)
+        filters_bank.append(sos)
+    
+    return filters_bank
+
+def create_thirds_filter_bank(f_list, fs, order):
+    """
+    Returns thirds of octaves filter bank
+    Input:
+        - f_list: list type object. List of exact central frequencies
+        - fs: Int type object. Sample rate.
+        - order: int type object. Order of the filters
+    Returns:
+        - filter_bank: list type object. Contains the second order sections array for each filter
+    """
+    filters_bank = []
+
+    for f in f_list:
+        sos = create_third_octave_filter(f, fs, order)
+        filters_bank.append(sos)
+    
+    return filters_bank
+
 octave_rel = 2
 ref_freq = 1000
 

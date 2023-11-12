@@ -209,7 +209,7 @@ def check_filter_plot(f0, sos, fs, bw, title=False, figsize=False, show=True):
     else:
         plt.ioff()
 
-def plot_leqs(x, *signals, title=False, figsize=False, show=True, rotate=False, info_type="frequency"):
+def plot_leqs(x, *signals, title=False, figsize=False, show=True, rotate=False, info_type="frequency", set_hline=False):
     """
     Plot a variable number of plots of leq values in rows of two plots by row.
     
@@ -223,8 +223,8 @@ def plot_leqs(x, *signals, title=False, figsize=False, show=True, rotate=False, 
         - titles: Optional dictionary for subplot titles. Keys are subplot numbers (ax) and values are titles.
         - show: Bool type object. True by default. Shows the plot
         - rotate: Bool type object. True by default. Rotates 45º the x-axis values
-        - info_type: 2 posible values: "frequency" or "categories". Frequency by de
-            - 
+        - info_type: 2 posible values: "frequency" or "categories". Frequency by default
+        - set_hline: number type object. 
     """
     if type(x) != list:
         raise ValueError("x must be a list")
@@ -252,9 +252,13 @@ def plot_leqs(x, *signals, title=False, figsize=False, show=True, rotate=False, 
         if rotate:
             plt.xticks(rotation=45)
         plt.ylabel("Nivel de energía equivalente [dB]")
-        plt.legend()
         plt.grid()
 
+    if set_hline:
+        plt.axhline(y=set_hline, color='r', linestyle='dashed', label=f"{set_hline} dB")
+
+    if len(signals) > 1:
+        plt.legend()
     plt.tight_layout()
 
     if title:
