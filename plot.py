@@ -7,7 +7,7 @@ import numpy as np
 nominal_oct_central_freqs = [31.5, 63, 125.0, 250.0, 500.0, 1000.0, 2000.0, 4000.0, 8000.0, 160000]
 
 
-def plot_signal(*vectors, xticks=None, yticks=None, title=None, file_name=False, grid=False, log=False, figsize=False, dB=False, show=True, plot_type=None):
+def plot_signal(*vectors, xticks=None, yticks=None, title=None, file_name=False, grid=False, log=False, figsize=False, show=True, plot_type=None, y_label="Amplitud"):
     """
     Plots a signal.
     Input:
@@ -47,11 +47,6 @@ def plot_signal(*vectors, xticks=None, yticks=None, title=None, file_name=False,
         if plot_type == "ED":
             plt.axhline(y=-60, color='r', linestyle='--', label='-60 dB Threshold')  # Línea horizontal
             plt.axvline(x=0.47, color='g', linestyle='--', label='Crossing Time')  # Línea vertical
-    
-    if dB:
-        plt.ylabel("Amplitud [dB]")
-    else:
-        plt.ylabel("Amplitud")
 
     if type(yticks) == np.ndarray:
         if type(yticks) != np.ndarray:            
@@ -62,9 +57,8 @@ def plot_signal(*vectors, xticks=None, yticks=None, title=None, file_name=False,
     
     if log:
         plt.yscale("log")
-        plt.ylabel("Amplitud (logarithmic)")
-    if dB:
-        plt.ylabel("Amplitud [dB]")
+
+    plt.ylabel(f"{y_label}")
 
     if title:
         plt.title(title)
