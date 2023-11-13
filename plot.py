@@ -340,8 +340,7 @@ def plot_fft(audio_signal, sample_rate=48000, N=10, title="Frequency Spectrum", 
     # Logarithmic scale for the x-axis
     if figsize:
         plt.figure(figsize=figsize) 
-    else:
-        plt.figure(figsize=(12, 5))
+
     if N > 1:
         plt.semilogx(freqs, smoothed_signal, color=colors)
     else:
