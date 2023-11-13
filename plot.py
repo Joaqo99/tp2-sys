@@ -216,7 +216,7 @@ def check_filter_plot(f0, sos, fs, bw, title=False, figsize=False, show=True):
     else:
         plt.ioff()
 
-def plot_leqs(x, *signals, title=False, figsize=False, show=True, rotate=False, info_type="frequency", set_hline=False):
+def plot_leqs(x, *signals, title=False, figsize=False, show=True, rotate=False, info_type="frequency", set_hline=False, y_limits=False):
     """
     Plot a leq values for multiple signals.
     
@@ -233,6 +233,7 @@ def plot_leqs(x, *signals, title=False, figsize=False, show=True, rotate=False, 
         - rotate: Bool type object. False by default. Rotates 45º the x-axis values
         - info_type: 2 posible values: "frequency" or "categories". Frequency by default
         - set_hline: number type object. Adds an horizontal line to the plot in the value.
+        - y_limits: structured type object. Set the limits for y axis.
     """
     if type(x) != list:
         raise ValueError("x must be a list")
@@ -271,6 +272,10 @@ def plot_leqs(x, *signals, title=False, figsize=False, show=True, rotate=False, 
 
     if title:
         plt.title(title)
+
+    if y_limits:
+        y_a, y_b = y_limits
+        plt.ylim(y_a, y_b)
 
     if show: 
         plt.show()
