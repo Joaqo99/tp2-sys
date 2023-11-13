@@ -13,12 +13,17 @@ def excel_sheets_data_to_DataFrame(file_name, *sheet_names):
     Output:
         data (DataFrame):
             DataFrame that conteins every data from sheets
-    ------------
-    Raices:
-        TypeError: if file_name or sheet_names are not strings
     '''
+
+    if type(file_name) != str:
+        raise ValueError('file_name must be a string type object')
+
     data = []
     for sheet in sheet_names:
+
+        if type(file_name) != str:
+            raise ValueError('sheet name must be a string type object')
+
         sheet = pd.read_excel(file_name, sheet_name = sheet)
         data.append(sheet)
     return data

@@ -107,16 +107,16 @@ def get_audio_time_array(audio, fs):
 
 def scale_amplitude(audio, ref):
     """
-    Returns an audio amplitude array in dB scale
+    Returns an audio amplitude array in pascal and dB scales
     Input:
         - audio: array type object.
-        - ref: array type object. Reference audio
+        - ref: array type object. Calibration audio
     Output:
         - audio_pascal: array type object. Audio in pascal
         - audio_dbSPL: array type object. Audio in dB SPL
     """
-    if  type(audio) != np.ndarray:
-        raise ValueError("audio must be a ndarray")
+    if  type(audio) != np.ndarray or type(ref) != np.ndarray:
+        raise ValueError("Both audio and reference must be nd arrays")
     
     ref_rms = np.max(ref)/np.sqrt(2)
 
@@ -130,19 +130,16 @@ def scale_amplitude(audio, ref):
 def Leq(signal, ref):
     """
     Calculate the equivalent sound pressure level of a signal
-
-    Parameters
-    ----------
-    signal : numpy.ndarray
-        The audio signal array in Pascal values
-    ref : numpy.ndarray
-        A reference audio signal array for convert the signal in Pascal if needed
-
-    Returns
-    -------
-    leq: numpy.ndarray
-        The equivalent sound pressure level of the signal
+    Input:
+        - signal: array type object.
+        - ref: array type object. Calibration audio
+    Output:
+        leq: numpy sacalar array. The equivalent sound pressure level of the signal
     """
+
+    if  type(signal) != np.ndarray or type(ref) != np.ndarray:
+        raise ValueError("Both signal and reference must be nd arrays")
+
     signal_pascal = scale_amplitude(signal, ref)[0]
 
     p_r = (20.0e-6)**2.
@@ -162,6 +159,9 @@ def leq_by_bands(audio, filter_bank, ref):
         - bands_leq: array type object. leq ordered from lowest to highest band.
     """
 
+    if  type(audio) != np.ndarray or type(ref) != np.ndarray:
+        raise ValueError("Both audio and reference must be nd arrays")
+
     bands_amplitudes = []
 
     for filt in filter_bank:
@@ -180,7 +180,7 @@ def sum_bands(values):
     """
     Returns the sum of energy bands
     Input:
-        - values: list type object. Contains every band value
+        - values: list type object. Contains every band leq value
     Output:
         - total_value: float type object. Sum of energy bands
     """
