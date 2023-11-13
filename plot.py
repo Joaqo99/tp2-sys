@@ -9,19 +9,21 @@ nominal_oct_central_freqs = [31.5, 63, 125.0, 250.0, 500.0, 1000.0, 2000.0, 4000
 
 def plot_signal(*vectors, xticks=None, yticks=None, title=None, file_name=False, grid=False, log=False, figsize=False, show=True, plot_type=None, y_label="Amplitud", xlimits = None):
     """
-    Plots a signal.
+    Plots multiple time signals over the same plot.
     Input:
-        - n: array type object. Sample/time vector.
-        - signal: array type object. Signal vector.    
-        - xticks: Optional. 
+        - vector: list type object. Contains the time and amplitudes vectors for each signal to plot:
+            - n: array type object. Time vector.
+            - signal: array type object. Amplitudes vector.    
+        - xticks: Optional. Int type object.
         - yticks: array type object. Optional
         - title: string type object. Optional
         - file_name: string type object. Optional. If true, saves the figure in graficos folder.
         - grid: boolean type object. Optional.
         - log: boolean type object. Optional.
-        - figsize: tuple of ints type object. Optional.
-        - dB: Bool type object. Optional, false by default. If true, the amplitude is in dB scale.
+        - figsize: tuple of ints type object. Optional. In order to use with Multiplot function, it must be false.
+        - show: Bool type object. If true, shows the plot. In order to use with Multiplot function, it must be false.
         - plot_type: str type. Type of signal to show. Can be a ED or temporal graph.
+        - x_limits: tuple type object.
     Output:
         - Signal plot
         - If file_name is true, saves the figure and prints a message.
@@ -80,11 +82,15 @@ def plot_signal(*vectors, xticks=None, yticks=None, title=None, file_name=False,
 
 def plot_ftf(filters, fs, f_lim=False, figsize=False, show=True, title=False, xticks=nominal_oct_central_freqs):
     """
-    Plots the filter transfer function
+    Plots a filter transfer function
     Input:
-        - filters: list of filters. They must be in sos format
+        - filters: list of filters. Sos format required.
         - fs: int type object. sample rate
         - f_lim: list type object. Frequency visualization limits. False 
+        - figsize: tuple of ints type object. Optional. In order to use with Multiplot function, it must be false.
+        - show: Bool type object. If true, shows the plot. In order to use with Multiplot function, it must be false.
+        - title: string type object. False by default.
+        - xticks: structured type object. Ticks of frequencies.
     """
     if figsize:
         plt.figure(figsize=figsize)
@@ -122,13 +128,15 @@ def check_filter_plot(f0, sos, fs, bw, title=False, figsize=False, show=True):
     """
     Plots the magnitude (in dB) of a filter in frequency respect the attenuation limits.
     Inputs:
-        - f0: int type object. central frequency of filter
+        - f0: int type object. Exact central frequency of filter
         - sos: array type object. Second order sections of the filter.
         - fs: int type object. sample rate
         - bw: str type object. Bandwidth of filter. Two possible values:
             - octave
             - third
         - title: string type object. Optional, false by default.
+        - figsize: tuple of ints type object. Optional. In order to use with Multiplot function, it must be false.
+        - show: Bool type object. If true, shows the plot. In order to use with Multiplot function, it must be false.
     """
     if figsize:
         plt.figure(figsize=figsize)
@@ -210,7 +218,7 @@ def check_filter_plot(f0, sos, fs, bw, title=False, figsize=False, show=True):
 
 def plot_leqs(x, *signals, title=False, figsize=False, show=True, rotate=False, info_type="frequency", set_hline=False):
     """
-    Plot a variable number of plots of leq values in rows of two plots by row.
+    Plot a leq values for multiple signals.
     
     Input:
         - x: list type object. List x-axis values
@@ -220,10 +228,11 @@ def plot_leqs(x, *signals, title=False, figsize=False, show=True, rotate=False, 
             - color: string type object.
         - freqs: list of central frequency. Central frequencies of multiple signals over the same axis must be the same.
         - titles: Optional dictionary for subplot titles. Keys are subplot numbers (ax) and values are titles.
-        - show: Bool type object. True by default. Shows the plot
-        - rotate: Bool type object. True by default. Rotates 45º the x-axis values
+        - figsize: tuple of ints type object. Optional. In order to use with Multiplot function, it must be false.
+        - show: Bool type object. If true, shows the plot. In order to use with Multiplot function, it must be false.
+        - rotate: Bool type object. False by default. Rotates 45º the x-axis values
         - info_type: 2 posible values: "frequency" or "categories". Frequency by default
-        - set_hline: number type object. 
+        - set_hline: number type object. Adds an horizontal line to the plot in the value.
     """
     if type(x) != list:
         raise ValueError("x must be a list")
@@ -270,9 +279,10 @@ def plot_leqs(x, *signals, title=False, figsize=False, show=True, rotate=False, 
 
 def multiplot(*plots, figsize=(8, 5)):
     """
-    Receive single plots as lambda functions and subplots them all.
+    Receive single plots as lambda functions and subplots them all in rows of 2 columns.
     Inputs:
-        plots: lambda function type object.
+        - plots: lambda function type object. Every plot must have Show and Figsize arguments set to False.
+        - figsize: structured type object.
     """
     num_plots = len(plots)
     rows = (num_plots + 1)//2
@@ -287,17 +297,14 @@ def plot_fft(audio_signal, sample_rate=48000, N=10, title="Frequency Spectrum", 
     """
     Generates and displays a graph of the frequency spectrum of an audio signal.
 
-    Parameters:
-        - audio_signal: ndarray
-            Array containing the audio signal to be plotted.
-        - sample_rate: int
-            Sampling rate. Default value: 48000.
-        - N: int or float
-            Window size parameter for the moving average filter. Default value: 10.
-        - title: str
-            Optional title for the plot. Default value: "Frequency Spectrum".
-        - colors = str type. Choose color of the plot
-        - show = Bool type. If you can show the plot
+    Input:
+        - audio_signal: Array type object. Contains the audio signal to be plotted.
+        - sample_rate: int type object. Default value: 48000.
+        - N: number type object. Window size parameter for the moving average filter. Default value: 10.
+        - title: str type object. Optional title for the plot. Default value: "Frequency Spectrum".
+        - colors: str type. Choose color of the plot
+        - figsize: tuple of ints type object. Optional. In order to use with Multiplot function, it must be false.
+        - show: Bool type object. If true, shows the plot. In order to use with Multiplot function, it must be false.
 
     Returns:
         - None

@@ -5,7 +5,7 @@ def create_octave_filter(f0, fs, order):
     """
     Creates an octave bandpass filter using second order sections.
     Input:
-        - f0 (float): Center frequency of the filter in Hz.
+        - f0 (float): Central frequency of the filter in Hz.
         - fs (int): Sampling rate.
 
     Output:
@@ -53,8 +53,8 @@ def sinesweep_filter(f01, f02, fs):
     """
     Generates a filter for a sinesweep response
     Input:
-        - f01: first third octave band  
-        - f02: last third octave band
+        - f01: first third octave band central frequency
+        - f02: last third octave band central frequency
         - fs: sample frequency
     Output:
         - sos: array type object. Second order sections of the filter. 
