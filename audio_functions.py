@@ -152,7 +152,7 @@ def Leq(signal, ref):
 def leq_by_bands(audio, filter_bank, ref):
     """
     Returns an array of equivalent continous sound pressure level (LEQ) of an audio by bands
-    Input:
+    Inputs:
         - audio: array type object.
         - filter_bank: list type object. It must contain the filters for the desired frequency bands.
     Output:
@@ -179,7 +179,8 @@ def leq_by_bands(audio, filter_bank, ref):
 def sum_bands(values):
     """
     Returns the sum of energy bands
-    Input:
+
+    Inputs:
         - values: list type object. Contains every band leq value
     Output:
         - total_value: float type object. Sum of energy bands
@@ -197,7 +198,7 @@ def inversesweep(sweep, f1, f2, sr):
     """
     Generate an inverse sweep signal from a given sweep signal.
 
-    Parameters:
+    Inputs:
         - sweep: ndarray
             The original sweep signal.
         - f1: float
@@ -207,7 +208,7 @@ def inversesweep(sweep, f1, f2, sr):
         - sr: int
             Sampling rate.
 
-    Returns:
+    Output:
         - inverse_sweep_normalized: ndarray
             The generated and normalized inverse sweep signal.
 
@@ -225,7 +226,7 @@ def get_rir(audio, sweep_ref, f1,f2, sr=48000):
     """
     Generate a room impulse response (RIR) from recorded audio using a sine sweep reference.
     
-    Parameters:
+    Inputs:
         - audio: ndarray
             Recorded audio signal containing the sine sweep response.
         - sweep_ref: ndarray
@@ -237,7 +238,7 @@ def get_rir(audio, sweep_ref, f1,f2, sr=48000):
         - sr: int, optional
             Sampling rate. Default is 48000.
 
-    Returns:
+    Output:
         - rir_trim: ndarray
             Trimmed and normalized room impulse response (RIR).
 
@@ -260,7 +261,7 @@ def rir_filt(rir, f1=100, f2=5000, sr = 48000):
     """
     Filter a room impulse response (RIR) using a sine sweep filter.
 
-    Parameters:
+    Inputs:
         - rir: ndarray
             Room impulse response (RIR) to be filtered.
         - f1: float, optional
@@ -270,7 +271,7 @@ def rir_filt(rir, f1=100, f2=5000, sr = 48000):
         - sr: int, optional
             Sampling rate. Default is 48000.
 
-    Returns:
+    Output:
         - rir_filtered: ndarray
             Filtered room impulse response (RIR).
 
@@ -282,9 +283,9 @@ def rir_filt(rir, f1=100, f2=5000, sr = 48000):
 
 def get_rirs(sinesweeps,  sinesweep_ref, f1, f2, fs):
     """
-    Generate room impulse responses (RIRs) from audio recorded sine sweeps and save the arrays in Py format.
+    From a list of signals it searches for its impulse response (RIR) one by one, and returns a list of the impulse responses
 
-    Parameters:
+    Inputs:
         - sinesweeps: List of ndarrays
             List of recorded audio signals containing sine sweep responses.
         - sinesweep_ref: ndarray
@@ -296,8 +297,9 @@ def get_rirs(sinesweeps,  sinesweep_ref, f1, f2, fs):
         - fs: int
             Sampling rate.
 
-    Returns:
-        None
+    Output:
+        - rirs: list type
+            Returns a list of rirs of the input signals.
 
     """
     rirs = []
@@ -313,11 +315,11 @@ def prom_rirs(rirs):
     """
     Compute the normalized sum of room impulse responses (RIRs).
 
-    Parameters:
+    Inputs:
         - rirs: list of numpy arrays
             List of room impulse responses (RIRs) as 1D numpy arrays.
 
-    Returns:
+    Output:
         - sum_rirs_normalized: numpy array
             The normalized sum of RIRs.
 
@@ -333,7 +335,7 @@ def get_paths(filename, sheet_name):
     """
     Extract file paths from an Excel file.
 
-    Input:
+    Inputs:
         - filename (str): The name of the Excel file.
         - sheet_name (str): The name of the Excel sheet containing paths.
 
@@ -349,10 +351,10 @@ def get_signals(signals_paths):
     """
     Load audio signals from file paths.
 
-    Parameters:
+    Inputs:
         - signals_paths (list of str): List of file paths to audio signals.
 
-    Returns:
+    Output:
         - signals_sr (list of int): List of sample rates for the loaded audio signals.
         - signals (list of ndarray): List of loaded audio signals.
 
@@ -371,7 +373,7 @@ def aural(audio, rir, fs=48000):
     """
     Auralize audio using a room impulse response (RIR). The input audio should be in mono.
 
-    Parameters:
+    Inputs:
         - audio: ndarray
             Mono audio signal to auralize.
         - rir: ndarray
@@ -379,7 +381,7 @@ def aural(audio, rir, fs=48000):
         - fs: int, optional
             Sampling rate. Default is 48000.
 
-    Returns:
+    Output:
         - aur: ndarray
             Auralized audio signal.
 
@@ -396,12 +398,12 @@ def get_sonometer_leq(data, central_freqs, *measurements):
     """
     Get sound level equivalent (Leq) values from a dataset for specified measurements and central frequencies.
 
-    Parameters:
+    Inputs:
         - data (DataFrame): DataFrame containing sound level data with columns 'Frequency [Hz]' and measurement values.
         - central_freqs (list): List of central frequencies of interest.
         - measurements (variable arguments): Names of the measurements to extract Leq values for.
 
-    Returns:
+    Output:
         - leq_values (list): List of Leq values for the specified measurements and central frequencies. If a single measurement is provided, a single list is returned. If multiple measurements are provided, a list of lists is returned.
 
     """
