@@ -5,7 +5,7 @@ def gen_sin_table(duracion, frecuencia, tabla_seno):
     """
     Generate a sinusoidal signal using a pre-defined lookup table.
     
-    Parameters:
+    Input:
     -----------
     duracion : int or float
         Duration of the signal in seconds.
@@ -14,7 +14,7 @@ def gen_sin_table(duracion, frecuencia, tabla_seno):
     tabla_seno : pandas.DataFrame
         DataFrame containing a lookup table with "idx" and "val" columns.
     
-    Returns:
+    Output:
     --------
     tiempo : numpy.ndarray
         Array containing the time values.

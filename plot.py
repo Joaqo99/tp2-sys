@@ -37,7 +37,7 @@ def plot_signal(*vectors, xticks=None, yticks=None, title=None, file_name=False,
     
     if type(xticks) == int:
         if xticks == 1:
-            plt.xticks(np.arange(0, xticks, 0.1))
+            plt.xticks(np.arange(0, xticks + 0.1, 0.1))
         else:
             plt.xticks(np.arange(0, xticks+1, 1))
 
@@ -311,7 +311,7 @@ def plot_fft(audio_signal, sample_rate=48000, N=10, title="Frequency Spectrum", 
         - figsize: tuple of ints type object. Optional. In order to use with Multiplot function, it must be false.
         - show: Bool type object. If true, shows the plot. In order to use with Multiplot function, it must be false.
 
-    Returns:
+    Output:
         - None
 
     Raises:
@@ -371,11 +371,11 @@ def plot_rir_casos(rir_casos, fs=48000):
     """
     Plot the overlaid frequency responses of different room impulse response (RIR) cases.
 
-    Parameters:
+    Inputs:
         - rir_casos (list of ndarrays): List of RIRs to plot.
         - fs (int, optional): Sampling rate. Default is 48000.
 
-    Returns:
+    Output:
         None
 
     """
@@ -417,9 +417,9 @@ def plot_rir_casos(rir_casos, fs=48000):
 
 def rir_subplot(rir_list, t, plot_type="12-RIR", case=None, title=None):
     """
-    Plot room impulse responses (RIRs) in a subplot arrangement.
+    Function to plot room impulse responses (RIRs) in a subplot arrangement. 
 
-    Parameters:
+    Inputs:
         - rir_list (list of ndarrays): List of RIRs to plot.
         - t (ndarray): Time values corresponding to the RIRs.
         - plot_type (str, optional): Type of plot. 
@@ -428,7 +428,7 @@ def rir_subplot(rir_list, t, plot_type="12-RIR", case=None, title=None):
         - case: Choose between SG or CG in "12-RIR" plot type. Default is not used.
         - title: list type. Optional. Add a title to each plot separately
 
-    Returns:
+    Output:
         None
     """
     if plot_type == "12-RIR":
@@ -472,7 +472,7 @@ def rir_subplot(rir_list, t, plot_type="12-RIR", case=None, title=None):
 def plot_mult_fft(audio_signal1, audio_signal2, fs=48000, N=10, title="Espectro en frecuencia"):
     """
     Generates and displays a graph of the frequency spectrum of audio signals.
-    Parameters
+    Inputs
     ----------
     - audio_signal1, audio_signal2 : ndarray
         Arrays containing the audio signals to be plotted.
@@ -483,7 +483,7 @@ def plot_mult_fft(audio_signal1, audio_signal2, fs=48000, N=10, title="Espectro 
     - title : str
         Optional title for the plot. Default value: "Espectro en frecuencia".
 
-    Returns
+    Output
     -------
     - None
 

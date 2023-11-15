@@ -14,13 +14,13 @@ def sineSweep(duration, init_f, end_f, fs=48000):
     """
     Generate a logarithmic sine sweep signal.
 
-    Parameters:
+    Input:
         - duration (float): Duration of the sine sweep in seconds.
         - init_f (float): Initial frequency of the sine sweep in Hz.
         - end_f (float): Final frequency of the sine sweep in Hz.
         - fs (int, optional): Sampling rate. Default is 48000 Hz.
 
-    Returns:
+    Output:
         - Sweep (ndarray): Logarithmic sine sweep signal.
         - t (ndarray): Time values corresponding to the sine sweep signal.
     """
@@ -39,11 +39,11 @@ def ruido_rosa(duration, sr):
     """
     Generate pink noise and save it to a WAV file.
 
-    Parameters:
+    Input:
         - duration (float): Duration of the pink noise signal in seconds.
         - sr (int): Sampling rate.
 
-    Returns:
+    Output:
         None
     """
 
